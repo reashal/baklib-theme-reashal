@@ -25,7 +25,7 @@
         "type": "textarea",
         "label": "导航链接",
         "info": "每行一个，格式：标题|URL|类型（internal/或留空）",
-        "default": "随笔|/e011|internal\n笔记|/f1a7|internal\n关于|/247b|internal\n仓库|https://github.com/reashal\n游弋|https://uuuu.ee"
+        "default": "仓库|https://github.com/reashal\n游弋|https://uuuu.ee"
       }
     ]
   },
