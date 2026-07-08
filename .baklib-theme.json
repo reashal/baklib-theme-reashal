@@ -1,0 +1,15 @@
+{
+  "pulled_at": "2026-07-07T11:57:20.357Z",
+  "theme_id": "8x9s20",
+  "version": {
+    "id": "3e2sd75",
+    "label": "t:schema.theme_label",
+    "commit_oid": "bba4daa695b2ab56bb45381762b0610b23e94b8a",
+    "commit_hash": "747c2579e318dd79665b801d9cf612b3ba1c4e09"
+  },
+  "git": null,
+  "git_root": "/tmp/baklib-reashal",
+  "out": "/tmp/baklib-reashal",
+  "errors": [],
+  "warnings": []
+}

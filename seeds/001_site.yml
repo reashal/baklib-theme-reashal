@@ -1,0 +1,5 @@
+site:
+  language: "zh-CN"
+  settings:
+    head_html: |
+      <!-- Custom <head> snippets -->

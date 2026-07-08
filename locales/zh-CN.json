@@ -1,0 +1,38 @@
+{
+  "theme_label": "睿屿青衫",
+  "theme_description": "睿屿青衫的个人博客主题",
+  "templates": {
+    "index": {
+      "description": "以碎片化的记录汇聚时光的川流"
+    },
+    "page": {
+      "current_version": "当前版本"
+    }
+  },
+  "paginate": {
+    "nav_label": "分页导航",
+    "showing": "当前显示",
+    "total": "总共",
+    "records": "条",
+    "previous": "上一页",
+    "next": "下一页"
+  },
+  "generic": {
+    "empty": "暂无内容",
+    "home": "首页",
+    "breadcrumb_nav": "面包屑导航",
+    "placeholders": { "search": "搜索" }
+  },
+  "schema": {
+    "custom_html": {
+      "name": "自定义代码",
+      "settings": {
+        "head_html": {
+          "label": "Head HTML",
+          "info": "在 &lt;/head&gt; 之前插入自定义 HTML（统计代码等）",
+          "placeholder": "<!-- 统计代码 -->"
+        }
+      }
+    }
+  }
+}

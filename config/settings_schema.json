@@ -1,0 +1,45 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "reashal",
+    "theme_label": "睿屿青衫",
+    "theme_description": "睿屿青衫的个人博客主题，以动态流为核心，兼顾文章与展示",
+    "theme_version": "1.0.0",
+    "theme_syntax_version": "v2",
+    "theme_scope": "cms",
+    "theme_author": "reashal",
+    "theme_documentation_url": "https://github.com/reashal",
+    "theme_support_url": "https://github.com/reashal",
+    "theme_thumb_url": "images/thumbnail.png",
+    "theme_preview_images": ["images/wallpaper.webp", "images/reashal.svg"],
+    "theme_languages": [
+      { "name": "中文简体", "value": "zh-CN" },
+      { "name": "English", "value": "en" }
+    ]
+  },
+  {
+    "name": "导航外链",
+    "settings": [
+      {
+        "id": "external_links",
+        "type": "textarea",
+        "label": "导航链接",
+        "info": "每行一个，格式：标题|URL|类型（internal/或留空）",
+        "default": "随笔|/life|internal\n笔记|/docs|internal\n关于|/about|internal\n仓库|https://github.com/reashal\n游弋|https://uuuu.ee"
+      }
+    ]
+  },
+  {
+    "name": "t:schema.custom_html.name",
+    "settings": [
+      {
+        "id": "head_html",
+        "type": "html",
+        "label": "t:schema.custom_html.settings.head_html.label",
+        "info": "t:schema.custom_html.settings.head_html.info",
+        "rows": 10,
+        "placeholder": "t:schema.custom_html.settings.head_html.placeholder"
+      }
+    ]
+  }
+]

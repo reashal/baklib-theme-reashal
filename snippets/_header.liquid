@@ -1,0 +1,26 @@
+<style>
+  .site-header {
+    position: relative;
+    height: 38vh;
+    background-color: rgb(87, 87, 87);
+    background-image: var(--wallpaper);
+    background-repeat: no-repeat;
+    background-position: center bottom 28%;
+    background-size: cover;
+  }
+  @media screen and (min-width: 488px) {
+    .site-header { margin: 2rem auto 0; width: 80%; border-radius: .8rem; }
+  }
+  @media screen and (min-width: 688px) {
+    .site-header { height: 46vh !important; }
+  }
+  @media screen and (min-width: 888px) {
+    .site-header { height: 400px !important; }
+  }
+  @media screen and (max-width: 488px) {
+    .site-header { margin: 0; width: 100%; }
+  }
+</style>
+<header class="site-header">
+  {% render 'dark_mode' %}
+</header>

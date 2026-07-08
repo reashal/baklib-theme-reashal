@@ -1,0 +1,28 @@
+<div class="article-container docs">
+  <h1>搜索</h1>
+  {% form_tag 'search' %}
+    <input type="search" name="{{ form.keywords_field_name }}" value="{{ search.keywords | escape_once }}" placeholder="搜索..." />
+  {% endform_tag %}
+
+  {% if search.keywords or search.tag %}
+    {% paginate_tag search.pages, as: 'items' %}
+      {% for result in items %}
+        <div class="docs-body">
+          <a href="{{ result.path }}"><h2 class="docs-h">{{ result.link_text }}</h2></a>
+          <p class="docs-p">{{ result.settings.description }}</p>
+        </div>
+      {% else %}
+        <p>未找到结果</p>
+      {% endfor %}
+      {% if paginate.total_pages > 1 %}{% render 'paginate', paginate: paginate %}{% endif %}
+    {% endpaginate_tag %}
+  {% endif %}
+</div>
+
+{% schema %}
+  {
+    "name": "搜索",
+    "description": "站点搜索页",
+    "settings": []
+  }
+{% endschema %}

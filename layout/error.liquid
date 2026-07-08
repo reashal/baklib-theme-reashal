@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404｜睿屿青衫</title>
+  <meta name="description" content="抱歉，您访问的页面不存在">
+  {% meta_tags %}
+  {% render 'theme_runtime_colors' %}
+  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  <style>
+    .not-found-container { display:flex; align-items:center; justify-content:center; padding:1rem; flex:1; }
+    .not-found-content { text-align:center; max-width:500px; width:100%; padding:2rem 0.5rem; }
+    .not-found-number { font-size:5rem; font-weight:700; margin:0; background:linear-gradient(45deg,#007175,#82d8dd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; animation:float 3s ease-in-out infinite; }
+    .not-found-title { font-size:1.4rem; margin:0.5rem 0 0.3rem; }
+    .not-found-desc { font-size:1rem; margin-bottom:0.8rem; color:#666; }
+    .not-found-buttons { display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap; margin-bottom:0.8rem; }
+    .btn-back, .btn-home { display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.6rem 1.2rem; border-radius:0.5rem; font-size:0.95rem; font-weight:500; text-decoration:none; transition:all 0.3s ease; border:2px solid #007175; cursor:pointer; font-family:inherit; }
+    .btn-back { background-color:transparent; color:#007175; }
+    .btn-back:hover { background-color:#007175; color:white; transform:translateY(-2px); }
+    .btn-home { background-color:#007175; color:white; }
+    .btn-home:hover { background-color:#005a5e; transform:translateY(-2px); }
+    .not-found-quote { font-style:italic; color:#888; font-size:0.85rem; margin-top:0.8rem; padding:0.6rem; border-top:1px solid #eee; border-bottom:1px solid #eee; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .dark .not-found-title{color:#dcebf2}
+    .dark .not-found-desc{color:#a0b4c0}
+    .dark .not-found-quote{color:#888;border-color:rgba(130,216,221,0.2)}
+    .dark .btn-back{color:#82d8dd;border-color:#82d8dd}
+    .dark .btn-back:hover{background-color:#82d8dd;color:#1e293b}
+    .dark .btn-home{background-color:#82d8dd;color:#1e293b;border-color:#82d8dd}
+    .dark .btn-home:hover{background-color:#a8e5e9}
+    @media(max-width:480px){.not-found-number{font-size:3.5rem}.not-found-content{padding:1.5rem 0.5rem}.not-found-title{font-size:1.1rem}.not-found-desc{font-size:0.9rem}.not-found-buttons{flex-direction:column;gap:0.5rem;align-items:center}.btn-back,.btn-home{width:100%;max-width:180px}}
+  </style>
+</head>
+<body>
+  <main class="aside-init">
+    {% render 'aside' %}
+    <section class="main" onclick="hideAside()">
+      {% render 'header' %}
+      <div class="not-found-container">
+        <div class="not-found-content">
+          <div class="not-found-number">404</div>
+          <h1 class="not-found-title">页面走丢了</h1>
+          <p class="not-found-desc">抱歉，您访问的页面不存在或已被移除</p>
+          <div class="not-found-buttons">
+            <button onclick="window.history.back()" class="btn-back">返回上一页</button>
+            <a href="/" class="btn-home">返回首页</a>
+          </div>
+          <div class="not-found-quote">
+            <p>"人生就像一场旅行，总会遇到一些意外的风景"</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  {{ 'javascripts/aside.js' | asset_url | script_tag }}
+</body>
+</html>

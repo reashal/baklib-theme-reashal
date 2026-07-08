@@ -1,0 +1,92 @@
+{% assign current_path = page.full_path %}
+
+<aside>
+  <section class="aside-body">
+    <section class="aside-author-card">
+      <img class="author-avatar" src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" title="睿屿青衫" loading="lazy" decoding="async" />
+      <div class="author-info">
+        <h3 class="author-name">睿屿青衫</h3>
+        <p class="author-desc">希望我们能在前行的路上久别重逢</p>
+        <p class="author-bio">希望我们能在前行的路上久别重逢</p>
+      </div>
+    </section>
+
+    <section class="aside-links-card">
+      <a href="/" target="_self"{% if current_path == '/' or current_path == '' %} class="active"{% endif %}>动态</a>
+      <a href="/e011" target="_self"{% if current_path contains '/e011' %} class="active"{% endif %}>生活随笔</a>
+      <a href="/f1a7" target="_self"{% if current_path contains '/f1a7' %} class="active"{% endif %}>技术笔记</a>
+      <a href="/2939" target="_self"{% if current_path contains '/2939' %} class="active"{% endif %}>好物展示</a>
+      <a href="/247b" target="_self"{% if current_path contains '/247b' %} class="active"{% endif %}>关于本站</a>
+      {% assign ext_links = site.settings.external_links | strip %}
+      {% if ext_links != blank %}
+        {% assign link_lines = ext_links | newline_to_br | strip_newlines | split: "<br />" %}
+        {% for line in link_lines %}
+          {% assign parts = line | split: "|" %}
+          <a href="{{ parts[1] | strip }}" target="_blank">{{ parts[0] | strip }}</a>
+        {% endfor %}
+      {% endif %}
+    </section>
+
+    <section class="aside-share-card">
+      <a class="share-link" id="aside-share-btn" aria-label="分享当前页面">分享当前页面</a>
+    </section>
+
+    <section class="aside-tags-card">
+      <div class="tags-scroll-container" id="tags-scroll-container">
+        <div class="tags-content" id="tags-content"></div>
+      </div>
+    </section>
+
+    <section class="aside-copyright-card">
+      <div>Powered By <a href="https://www.baklib.com" class="copy-a" target="_blank">Baklib</a></div>
+      <div>Themed By <a href="/about" class="copy-a">reashal</a></div>
+    </section>
+  </section>
+  <div class="aside-toggle-btn" onclick="clickAsideBtn()"></div>
+</aside>
+
+<script>
+  (function() {
+    var asideShareBtn = document.getElementById('aside-share-btn');
+    if (asideShareBtn) {
+      asideShareBtn.addEventListener('click', function() {
+        if (typeof clickAsideBtn === 'function') clickAsideBtn();
+        setTimeout(function() {
+          var shareBtn = document.getElementById('share-btn');
+          if (shareBtn) shareBtn.click();
+        }, 300);
+      });
+    }
+  })();
+
+  (function() {
+    var container = document.getElementById('tags-content');
+    if (!container) return;
+    var knownTags = ["Linux", "Java", "BigData", "C++", "Python", "upyun", "生活"];
+    function createTagElement(tag) {
+      var el = document.createElement('a');
+      el.href = '/search?tag=' + encodeURIComponent(tag);
+      el.className = 'tag-item';
+      el.innerHTML = '<span class="tag-name">#' + tag + '</span>';
+      return el;
+    }
+    knownTags.forEach(function(tag) { container.appendChild(createTagElement(tag)); });
+    knownTags.forEach(function(tag) { container.appendChild(createTagElement(tag)); });
+    var scrollContainer = document.getElementById('tags-scroll-container');
+    if (!scrollContainer) return;
+    var currentTranslateX = 0, isPaused = false, lastTime = 0, speed = 25;
+    setTimeout(function() { currentTranslateX = -container.scrollWidth / 2; requestAnimationFrame(animate); }, 100);
+    function animate(now) {
+      if (!lastTime) lastTime = now;
+      var dt = (now - lastTime) / 1000; lastTime = now;
+      if (!isPaused) {
+        currentTranslateX += speed * dt;
+        if (currentTranslateX >= 0) currentTranslateX = -container.scrollWidth / 2;
+        container.style.transform = 'translateX(' + currentTranslateX + 'px)';
+      }
+      requestAnimationFrame(animate);
+    }
+    scrollContainer.addEventListener('mouseenter', function() { isPaused = true; });
+    scrollContainer.addEventListener('mouseleave', function() { isPaused = false; });
+  })();
+</script>
