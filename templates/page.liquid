@@ -1,15 +1,19 @@
 {% assign is_moment = page.settings.date %}
 {% assign children = page.children | where: "template_name", "page" %}
 {% assign has_children = children | size %}
+{% assign is_section = false %}
+{% if is_moment == blank and page.parent != blank and page.parent.id == site.pages['/'].id %}
+  {% assign is_section = true %}
+{% endif %}
 
-{% if has_children > 0 %}
+{% if has_children > 0 or is_section %}
   {% comment %}--- Article listing mode (category) ---{% endcomment %}
   {% assign sorted = children | sort: "published_at" | reverse %}
   <article class="article-container docs" id="docs-container">
     {% paginate_tag sorted, as: 'items' %}
       {% for item in items %}
         <div class="docs-body">
-          <a href="{{ item.full_path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
           <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
         </div>
@@ -72,8 +76,8 @@
       <section class="article-tags">{% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</section>
     {% endif %}
     <section class="article-copy">
-      <div>本文作者：<a href="https://www.reashal.com{{ page.full_path }}" target="_blank">睿屿青衫</a></div>
-      <div>本文来源：<a href="https://www.reashal.com{{ page.full_path }}" target="_blank">https://www.reashal.com{{ page.full_path }}</a></div>
+      <div>本文作者：<a href="https://www.reashal.com{{ page.path }}" target="_blank">睿屿青衫</a></div>
+      <div>本文来源：<a href="https://www.reashal.com{{ page.path }}" target="_blank">https://www.reashal.com{{ page.path }}</a></div>
       <div class="article-copy-info">许可协议：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank">CC BY-NC-SA 4.0</a></div>
       <div class="article-copy-info">本站随笔均为原创，涉及隐私且时效性较强，不允许任何人以任何形式转载。</div>
       <div class="article-copy-info">本站笔记多对原始作品作出修改，允许非商业用途转载，转载时请注明出处。</div>
