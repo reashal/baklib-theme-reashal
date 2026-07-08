@@ -13,10 +13,10 @@
 
     <section class="aside-links-card">
       <a href="/" target="_self"{% if current_path == '/' or current_path == '' %} class="active"{% endif %}>动态</a>
-      <a href="/life" target="_self"{% if current_path contains '/life' %} class="active"{% endif %}>生活随笔</a>
-      <a href="/docs" target="_self"{% if current_path contains '/docs' %} class="active"{% endif %}>技术笔记</a>
-      <a href="/showcase" target="_self"{% if current_path contains '/showcase' %} class="active"{% endif %}>好物展示</a>
-      <a href="/about" target="_self"{% if current_path contains '/about' %} class="active"{% endif %}>关于本站</a>
+      <a href="/life" target="_self"{% if current_path contains '/life' %} class="active"{% endif %}>随笔</a>
+      <a href="/docs" target="_self"{% if current_path contains '/docs' %} class="active"{% endif %}>笔记</a>
+      <a href="/showcase" target="_self"{% if current_path contains '/showcase' %} class="active"{% endif %}>展示</a>
+      <a href="/about" target="_self"{% if current_path contains '/about' %} class="active"{% endif %}>关于</a>
       {% assign ext_links = site.settings.external_links | strip %}
       {% if ext_links != blank %}
         {% assign link_lines = ext_links | newline_to_br | strip_newlines | split: "<br />" %}
