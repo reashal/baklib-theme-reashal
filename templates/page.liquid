@@ -15,50 +15,50 @@
   {% endif %}
   <p>--- site.pages (all, up to 10) ---</p>
   {% for p in site.pages limit:10 %}
-    <p>sp#{{ forloop.index }}: id={{ p.id }} slug={{ p.slug }} path={{ p.path }} link_text={{ p.link_text }} parent_id={{ p.parent_id }}</p>
+    <p>sp#{{ forloop.index }}: id={{ p.id }} slug={{ p.slug }} path={{ p.path }} link_text={{ p.link_text }} parent_id={{ p.parent_id }} template={{ p.template_name }} published={{ p.published }} desc={{ p.settings.description }} pub_at={{ p.published_at }}</p>
   {% endfor %}
   <p>--- page.children (all) ---</p>
   {% for c in page.children %}
-    <p>child#{{ forloop.index }}: id={{ c.id }} slug={{ c.slug }} path={{ c.path }} link_text={{ c.link_text }} parent_id={{ c.parent_id }}</p>
+    <p>child#{{ forloop.index }}: id={{ c.id }} slug={{ c.slug }} path={{ c.path }} link_text={{ c.link_text }} parent_id={{ c.parent_id }} template={{ c.template_name }} published={{ c.published }} desc={{ c.settings.description }} pub_at={{ c.published_at }}</p>
   {% endfor %}
 </div>
 
 {% assign is_moment = page.settings.date %}
 {% assign is_section = false %}
-{% assign section_paths = "/e011,/f1a7,/2939" | split: "," %}
-{% if section_paths contains page.path %}
+{% if page.path == "/e011" or page.path == "/f1a7" or page.path == "/2939" %}
   {% assign is_section = true %}
 {% endif %}
-{% assign sorted = nil %}
-{% if is_section %}
-  {% assign sorted = site.pages | where: "parent_id", page.id | where: "published", true | sort: "published_at" | reverse %}
-{% else %}
-  {% assign children = page.children | where: "template_name", "page" %}
-  {% assign has_children = children | size %}
-  {% if has_children > 0 %}
-    {% assign sorted = children | sort: "published_at" | reverse %}
-  {% endif %}
-{% endif %}
 
-{% if sorted != nil %}
-  {% comment %}--- Article listing mode (category) ---{% endcomment %}
+{% if is_section %}
+  {% comment %}--- Article listing mode (category, via site.pages) ---{% endcomment %}
+  {% assign prefix = page.path | append: "/" %}
   <article class="article-container docs" id="docs-container">
-    {% if sorted.size > 0 %}
-      {% for item in sorted %}
+    {% assign found = false %}
+    {% for item in site.pages %}
+      {% if item.path != page.path and item.path contains prefix %}
+        {% assign found = true %}
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
           <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
         </div>
-      {% endfor %}
-      {% if sorted.size > 10 %}
-        <footer class="docs-footer">
-          <p class="end-tip">故事暂且讲到这里</p>
-        </footer>
       {% endif %}
-    {% else %}
+    {% endfor %}
+    {% unless found %}
       <div class="docs-body"><p class="docs-p">暂无文章</p></div>
-    {% endif %}
+    {% endunless %}
+  </article>
+{% elsif page.children.size > 0 %}
+  {% comment %}--- Article listing mode (via page.children) ---{% endcomment %}
+  {% assign sorted = page.children | sort: "published_at" | reverse %}
+  <article class="article-container docs" id="docs-container">
+    {% for item in sorted %}
+      <div class="docs-body">
+        <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+        <p class="docs-p">{{ item.settings.description }}</p>
+        <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
+      </div>
+    {% endfor %}
   </article>
 {% elsif is_moment %}
   {% comment %}--- Moment detail mode ---{% endcomment %}
