@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="{{ site.language }}" data-active-page="{{ page.full_path }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.link_text }}｜睿屿青衫</title>
+  <meta name="author" content="睿屿青衫">
+  <meta name="keywords" content="睿屿青衫,reashal,blog,life,博客,随笔,记录,点滴,主页">
+  <link rel="icon" href="{{ 'favicon.svg' | asset_url }}">
+  {% meta_tags %}
+  {% render 'theme_runtime_colors' %}
+
+  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-aside.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-moments.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-md.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-docs.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-showcase.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-share.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-tags.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'javascripts/application.js' | asset_url | script_tag: defer: true, data-turbo-track: 'reload' }}
+
+  <style>
+    :root {
+      --wallpaper: url({{ 'images/wallpaper.webp' | asset_url }});
+      --author-avatar: url({{ 'images/reashal.svg' | asset_url }});
+    }
+  </style>
+
+  {{ site.settings.head_html }}
+</head>
+<body>
+  <main class="aside-init">
+    {% render 'aside' %}
+    <section class="main" onclick="hideAside()">
+      {% render 'header' %}
+      {{ content_for_layout }}
+    </section>
+  </main>
+  {% render 'share' %}
+  {% render 'image_viewer' %}
+
+  {{ 'javascripts/view.js' | asset_url | script_tag }}
+  {{ 'javascripts/aside.js' | asset_url | script_tag }}
+  <canvas class="fireworks" style="position:fixed;left:0;top:0;z-index:99999999;pointer-events:none;"></canvas>
+  {{ 'javascripts/cursor.js' | asset_url | script_tag }}
+</body>
+</html>

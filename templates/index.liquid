@@ -1,0 +1,41 @@
+<article class="article-container">
+  <section class="moments">
+    {% assign moments = site.pages | where: "template_name", "page" | where: "settings.date" | sort: "published_at" | reverse %}
+    {% if moments.size > 0 %}
+      {% for p in moments %}
+      <article class="moment" id="{{ p.hashid | default: p.id }}">
+        <header class="moment-author">
+          <figure class="author-avatar">
+            <img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" />
+          </figure>
+          <div class="author-info">
+            <span class="author-name">睿屿青衫</span>
+            <time class="author-date" datetime="{{ p.settings.date }}">{{ p.settings.date }}</time>
+          </div>
+        </header>
+        <section class="moment-content">
+          <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+        </section>
+        {% if p.content != blank %}
+          <section class="moment-content">{{ p.content | truncate: 200 }}</section>
+        {% endif %}
+      </article>
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
+    {% endif %}
+    <footer class="moments-footer">
+      <p class="end-tip">故事暂且讲到这里</p>
+    </footer>
+  </section>
+</article>
+
+{% schema %}
+  {
+    "name": "首页",
+    "description": "动态流首页",
+    "thumb_url": "",
+    "sub_page_templates": ["page"],
+    "settings": []
+  }
+{% endschema %}

@@ -1,0 +1,48 @@
+pages:
+  template_name: "index"
+  settings:
+    title: "动态"
+    description: "以碎片化的记录汇聚时光的川流"
+
+  children:
+    - name: "随笔"
+      slug: "life"
+      template_name: "category"
+      settings:
+        title: "随笔"
+        description: "希望我的文字不止可以与自己共鸣"
+
+    - name: "笔记"
+      slug: "docs"
+      template_name: "category"
+      settings:
+        title: "笔记"
+        description: "积跬步以至千里"
+
+    - name: "展示"
+      slug: "showcase"
+      template_name: "showcase"
+      hidden_from_nav_menu: true
+      settings:
+        title: "展示"
+        description: "物品清单与友情链接"
+      children:
+        - name: "物品清单"
+          slug: "stuff"
+          template_name: "showcase_section"
+          settings:
+            title: "物品清单"
+            description: "一些日常相伴的物品清单"
+        - name: "友情链接"
+          slug: "links"
+          template_name: "showcase_section"
+          settings:
+            title: "友情链接"
+            description: "备用镜像、互链朋友与推荐站点"
+
+    - name: "关于"
+      slug: "about"
+      template_name: "page"
+      settings:
+        title: "关于"
+        description: "本篇为睿屿青衫的个人简介"
