@@ -17,10 +17,17 @@
   {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag }}
 </head>
 <body>
-  {% assign root = site.pages['/'] %}
-  {% assign moments = root.children_in_list | where: "template_name", "page" | sort: "published_at" | reverse %}
+  {% query moments from site.pages %}
+    {
+      "where": {
+        "template_name_eq": "page",
+        "settings.date_present": true
+      },
+      "order_by": ["-published_at"]
+    }
+  {% endquery %}
   <section class="moments">
-    {% for moment in moments %}{% if moment.settings.date != blank %}
+    {% for moment in moments %}
       {% assign moment_id = moment.slug | default: moment.hashid %}
       <article class="moment" id="{{ moment_id }}">
         <header class="moment-author">
@@ -39,7 +46,7 @@
         {% endif %}
         {% if moment.settings.location != blank %}<div class="moment-location"><code>{{ moment.settings.location }}</code></div>{% endif %}
       </article>
-    {% endif %}{% endfor %}
+    {% endfor %}
     <footer class="moments-footer"><p class="end-tip">故事暂且讲到这里</p></footer>
   </section>
   <script>

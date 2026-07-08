@@ -1,38 +1,40 @@
 <article class="article-container">
   <section class="moments">
-    <p>Page ID: {{ page.id }}</p>
-    <p>Page path: {{ page.full_path }}</p>
-
-    {% assign c1 = page.children %}
-    <p>children.size: {{ c1.size }}</p>
-
-    {% assign c2 = page.children_in_list %}
-    <p>children_in_list.size: {{ c2.size }}</p>
-
-    {% assign c3 = page.children_in_nav_menu %}
-    <p>children_in_nav_menu.size: {{ c3.size }}</p>
-
-    {% assign c4 = page.pages %}
-    <p>pages.size: {{ c4.size }}</p>
-
-    {% assign c5 = page.pages_in_list %}
-    <p>pages_in_list.size: {{ c5.size }}</p>
-
-    {% assign root = site.pages['/'] %}
-    {% if root %}
-      <p>Root found: {{ root.id }} {{ root.link_text }}</p>
-      {% assign rc = root.children %}
-      <p>root.children.size: {{ rc.size }}</p>
+    {% query moments from site.pages %}
+      {
+        "where": {
+          "template_name_eq": "page",
+          "settings.date_present": true
+        },
+        "order_by": ["-published_at"]
+      }
+    {% endquery %}
+    {% if moments.size > 0 %}
+      {% for p in moments %}
+      <article class="moment" id="{{ p.hashid | default: p.id }}">
+        <header class="moment-author">
+          <figure class="author-avatar">
+            <img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" />
+          </figure>
+          <div class="author-info">
+            <span class="author-name">睿屿青衫</span>
+            <time class="author-date" datetime="{{ p.settings.date }}">{{ p.settings.date }}</time>
+          </div>
+        </header>
+        <section class="moment-content">
+          <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+        </section>
+        {% if p.content != blank %}
+          <section class="moment-content">{{ p.content | truncate: 200 }}</section>
+        {% endif %}
+      </article>
+      {% endfor %}
     {% else %}
-      <p>Root NOT found</p>
+      <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
     {% endif %}
-
-    <h3>Debug: site.pages_in_list limit 5</h3>
-    {% assign all = site.pages_in_list | limit: 5 %}
-    <p>site.pages_in_list: {{ all.size }} items</p>
-    {% for p in all %}
-      <p>- {{ p.id }} {{ p.link_text }} | {{ p.full_path }} | t:{{ p.template_name }}</p>
-    {% endfor %}
+    <footer class="moments-footer">
+      <p class="end-tip">故事暂且讲到这里</p>
+    </footer>
   </section>
 </article>
 
