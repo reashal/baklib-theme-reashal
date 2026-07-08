@@ -2,7 +2,8 @@
 {% assign children = page.children | where: "template_name", "page" %}
 {% assign has_children = children | size %}
 {% assign is_section = false %}
-{% if is_moment == blank and page.parent != blank and page.parent.id == site.pages['/'].id %}
+{% assign section_paths = "/e011,/f1a7,/2939" | split: "," %}
+{% if section_paths contains page.path %}
   {% assign is_section = true %}
 {% endif %}
 
