@@ -86,7 +86,7 @@
   {% comment %}--- Standard article detail mode ---{% endcomment %}
   <article class="article-container doc">
     <h1>{{ page.settings.title | default: page.link_text }}</h1>
-    <div class="doc-content">{{ page.content }}</div>
+    <div class="doc-content">{{ page.settings.content | default: page.content }}</div>
     {% if page.tags != blank %}
       <section class="article-tags">{% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</section>
     {% endif %}
