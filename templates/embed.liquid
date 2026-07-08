@@ -17,7 +17,8 @@
   {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag }}
 </head>
 <body>
-  {% assign moments = site.pages_in_list | where: "template_name", "page" | sort: "published_at" | reverse %}
+  {% assign root = site.pages['/'] %}
+  {% assign moments = root.children_in_list | where: "template_name", "page" | sort: "published_at" | reverse %}
   <section class="moments">
     {% for moment in moments %}{% if moment.settings.date != blank %}
       {% assign moment_id = moment.slug | default: moment.hashid %}
