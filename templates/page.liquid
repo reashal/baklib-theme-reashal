@@ -1,33 +1,54 @@
+<div id="debug-children">
+  <p>page.id: {{ page.id }}</p>
+  <p>page.path: {{ page.path }}</p>
+  <p>site.pages size: {{ site.pages | size }}</p>
+  <p>page.children size: {{ page.children | size }}</p>
+  <p>children_raw: {{ page.children }}</p>
+  {% for c in page.children limit:5 %}
+    <p>child#{{ forloop.index }}: id={{ c.id }} slug={{ c.slug }} name={{ c.name }} path={{ c.path }} link_text={{ c.link_text }} template={{ c.template_name }} parent_id={{ c.parent_id }}</p>
+  {% endfor %}
+  <p>--- site.pages ---</p>
+  {% for p in site.pages limit:5 %}
+    <p>sp#{{ forloop.index }}: id={{ p.id }} slug={{ p.slug }} name={{ p.name }} path={{ p.path }} link_text={{ p.link_text }} template={{ p.template_name }} parent_id={{ p.parent_id }} published={{ p.published }}</p>
+  {% endfor %}
+</div>
+
 {% assign is_moment = page.settings.date %}
-{% assign children = page.children | where: "template_name", "page" %}
-{% assign has_children = children | size %}
 {% assign is_section = false %}
 {% assign section_paths = "/e011,/f1a7,/2939" | split: "," %}
 {% if section_paths contains page.path %}
   {% assign is_section = true %}
 {% endif %}
+{% assign sorted = nil %}
+{% if is_section %}
+  {% assign sorted = site.pages | where: "parent_id", page.id | where: "published", true | sort: "published_at" | reverse %}
+{% else %}
+  {% assign children = page.children | where: "template_name", "page" %}
+  {% assign has_children = children | size %}
+  {% if has_children > 0 %}
+    {% assign sorted = children | sort: "published_at" | reverse %}
+  {% endif %}
+{% endif %}
 
-{% if has_children > 0 or is_section %}
+{% if sorted != nil %}
   {% comment %}--- Article listing mode (category) ---{% endcomment %}
-  {% assign sorted = children | sort: "published_at" | reverse %}
   <article class="article-container docs" id="docs-container">
-    {% paginate_tag sorted, as: 'items' %}
-      {% for item in items %}
+    {% if sorted.size > 0 %}
+      {% for item in sorted %}
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
           <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
         </div>
-      {% else %}
-        <div class="docs-body"><p class="docs-p">暂无文章</p></div>
       {% endfor %}
-      {% if paginate.total_pages > 1 %}
+      {% if sorted.size > 10 %}
         <footer class="docs-footer">
-          <nav class="docs-pagination" aria-label="分页导航">{% render 'paginate', paginate: paginate %}</nav>
           <p class="end-tip">故事暂且讲到这里</p>
         </footer>
       {% endif %}
-    {% endpaginate_tag %}
+    {% else %}
+      <div class="docs-body"><p class="docs-p">暂无文章</p></div>
+    {% endif %}
   </article>
 {% elsif is_moment %}
   {% comment %}--- Moment detail mode ---{% endcomment %}
