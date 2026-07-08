@@ -1,16 +1,12 @@
 <article class="article-container">
   <section class="moments">
-    {% query moments from site.pages %}
-      {
-        "where": {
-          "template_name_eq": "page",
-          "settings.date_present": true
-        },
-        "order_by": ["-published_at"]
-      }
-    {% endquery %}
-    {% if moments.size > 0 %}
-      {% for p in moments %}
+    {% assign has = false %}
+    {% for p in site.pages %}
+      {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
+    {% endfor %}
+    {% if has %}
+      {% for p in site.pages %}
+        {% if p.settings.date != blank %}
       <article class="moment" id="{{ p.hashid | default: p.id }}">
         <header class="moment-author">
           <figure class="author-avatar">
@@ -28,6 +24,7 @@
           <section class="moment-content">{{ p.content | truncate: 200 }}</section>
         {% endif %}
       </article>
+        {% endif %}
       {% endfor %}
     {% else %}
       <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
