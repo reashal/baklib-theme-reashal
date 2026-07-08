@@ -1,15 +1,25 @@
-<div id="debug-children">
-  <p>page.id: {{ page.id }}</p>
-  <p>page.path: {{ page.path }}</p>
-  <p>site.pages size: {{ site.pages | size }}</p>
-  <p>page.children size: {{ page.children | size }}</p>
-  <p>children_raw: {{ page.children }}</p>
-  {% for c in page.children limit:5 %}
-    <p>child#{{ forloop.index }}: id={{ c.id }} slug={{ c.slug }} name={{ c.name }} path={{ c.path }} link_text={{ c.link_text }} template={{ c.template_name }} parent_id={{ c.parent_id }}</p>
+<div id="debug-children" style="background:#eee;padding:8px;margin:8px;border:1px solid #ccc;font-size:12px;line-height:1.4">
+  <p><b>DEBUG:</b></p>
+  <p>page.id = {{ page.id }}</p>
+  <p>page.path = {{ page.path }}</p>
+  <p>site.pages size = {{ site.pages | size }}</p>
+  <p>is_section = {{ is_section }}</p>
+  <p>sorted size = {{ sorted | size }}</p>
+  {% if sorted != nil %}
+    <p>sorted.size = {{ sorted.size }}</p>
+    {% if sorted.size > 0 %}
+      {% for item in sorted limit:3 %}
+        <p>item#{{ forloop.index }}: path={{ item.path }} link_text={{ item.link_text }} description={{ item.settings.description }} published_at={{ item.published_at }} parent_id={{ item.parent_id }}</p>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  <p>--- site.pages (all, up to 10) ---</p>
+  {% for p in site.pages limit:10 %}
+    <p>sp#{{ forloop.index }}: id={{ p.id }} slug={{ p.slug }} path={{ p.path }} link_text={{ p.link_text }} parent_id={{ p.parent_id }}</p>
   {% endfor %}
-  <p>--- site.pages ---</p>
-  {% for p in site.pages limit:5 %}
-    <p>sp#{{ forloop.index }}: id={{ p.id }} slug={{ p.slug }} name={{ p.name }} path={{ p.path }} link_text={{ p.link_text }} template={{ p.template_name }} parent_id={{ p.parent_id }} published={{ p.published }}</p>
+  <p>--- page.children (all) ---</p>
+  {% for c in page.children %}
+    <p>child#{{ forloop.index }}: id={{ c.id }} slug={{ c.slug }} path={{ c.path }} link_text={{ c.link_text }} parent_id={{ c.parent_id }}</p>
   {% endfor %}
 </div>
 
