@@ -21,7 +21,22 @@
           <a href="{{ p.full_path }}">{{ p.link_text }}</a>
         </section>
         {% if p.content != blank %}
-          <section class="moment-content">{{ p.content | truncate: 200 }}</section>
+          <section class="moment-content">{{ p.content }}</section>
+        {% endif %}
+        {% if p.settings.images != blank %}
+          {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
+          <section class="moment-images">
+            {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" />{% endfor %}
+          </section>
+        {% endif %}
+        {% if p.settings.location != blank %}
+          <div class="moment-location"><code>{{ p.settings.location }}</code></div>
+        {% endif %}
+        {% if p.settings.stars != blank %}
+          <div class="moment-interaction">
+            {% assign star_list = p.settings.stars | split: "," %}
+            {% for star in star_list %}<span class="star-item">{{ star | strip }}</span>{% endfor %}
+          </div>
         {% endif %}
       </article>
         {% endif %}
