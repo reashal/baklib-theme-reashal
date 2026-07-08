@@ -1,12 +1,26 @@
 <article class="article-container">
   <section class="moments">
-    {% assign moments = page.children_in_list | where: "template_name", "page" | sort: "published_at" | reverse %}
+    {% assign kids = page.children_in_list %}
+    <p>Children count: {{ kids.size }}</p>
+    {% if kids.size > 0 %}
+      <ul>
+      {% for p in kids %}
+        <li>{{ p.link_text }} | template:{{ p.template_name }} | date:{{ p.settings.date }} | path:{{ p.full_path }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% assign moments = kids | where: "template_name", "page" %}
+    <p>After template filter: {{ moments.size }}</p>
+
+    {% assign dated = kids | where: "template_name", "page" %}
     {% assign has = false %}
-    {% for p in moments %}
+    {% for p in dated %}
       {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
     {% endfor %}
+    <p>Has dated: {{ has }}</p>
     {% if has %}
-      {% for p in moments %}
+      {% for p in dated %}
         {% if p.settings.date != blank %}
       <article class="moment" id="{{ p.hashid | default: p.id }}">
         <header class="moment-author">
