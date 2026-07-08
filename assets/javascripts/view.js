@@ -1,16 +1,12 @@
 let momentGroups = {}
 let currentMomentId = null
 let currentIndex = 0
-let mainElement = null
-let viewImg = null
-let viewBox = null
-let viewPrev = null
-let viewNext = null
-let viewCounter = null
-let viewClose = null
+
+function getMainElement() {
+    return document.getElementsByTagName("main")[0]
+}
 
 function initElements() {
-    mainElement = document.getElementsByTagName("main")[0]
     viewImg = document.getElementById('view-img')
     viewBox = document.getElementById('view-box')
     viewPrev = document.getElementById('view-prev')
@@ -21,6 +17,8 @@ function initElements() {
 
 function collectImages() {
     momentGroups = {}
+    var mainEl = getMainElement()
+    if (!mainEl) return
     let moments = document.querySelectorAll('.moment-images')
     moments.forEach(function(momentSection) {
         let momentId = momentSection.getAttribute('data-moment-id')
@@ -39,7 +37,7 @@ function collectImages() {
         let imgs = momentSection.querySelectorAll('img')
         imgs.forEach(function(img, idx) {
             img.addEventListener('click', function() {
-                if (!mainElement.classList.contains("aside-show")) {
+                if (!mainEl.classList.contains("aside-show")) {
                     currentMomentId = momentId
                     currentIndex = idx
                     showImage()
@@ -52,7 +50,7 @@ function collectImages() {
         let overlay = momentSection.querySelector('.img-mask-overlay')
         if (overlay) {
             overlay.addEventListener('click', function() {
-                if (!mainElement.classList.contains("aside-show")) {
+                if (!mainEl.classList.contains("aside-show")) {
                     currentMomentId = momentId
                     currentIndex = 8
                     showImage()
