@@ -1,12 +1,11 @@
 <article class="article-container">
   <section class="moments">
-    {% assign moments_sorted = site.pages | sort: "settings.date" | reverse %}
     {% assign has = false %}
-    {% for p in moments_sorted %}
+    {% for p in site.pages %}
       {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
     {% endfor %}
     {% if has %}
-      {% for p in moments_sorted %}
+      {% for p in site.pages reversed %}
         {% if p.settings.date != blank %}
       <article class="moment" id="{{ p.hashid | default: p.id }}">
         <header class="moment-author">
