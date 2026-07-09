@@ -18,7 +18,8 @@
 </head>
 <body>
   <section class="moments">
-    {% for moment in site.pages %}{% if moment.settings.date != blank %}
+    {% assign moments_sorted = site.pages | sort: "settings.date" | reverse %}
+    {% for moment in moments_sorted %}{% if moment.settings.date != blank %}
       {% assign moment_id = moment.slug | default: moment.hashid %}
       <article class="moment" id="{{ moment_id }}">
         <header class="moment-author">
