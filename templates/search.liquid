@@ -1,10 +1,24 @@
 <div class="article-container docs">
-  <h1>搜索</h1>
+  <h1>{{ search.tag | default: '搜索' }}</h1>
   {% form_tag 'search' %}
     <input type="search" name="{{ form.keywords_field_name }}" value="{{ search.keywords | escape_once }}" placeholder="搜索..." />
   {% endform_tag %}
 
-  {% if search.keywords %}
+  {% if search.tag %}
+    {% assign found = false %}
+    {% for page in site.pages %}
+      {% if page.seo_keywords contains search.tag %}
+        {% assign found = true %}
+        <div class="docs-body">
+          <a href="{{ page.path }}"><h2 class="docs-h">{{ page.link_text }}</h2></a>
+          <p class="docs-p">{{ page.settings.description }}</p>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% if found == false %}
+      <p>未找到结果</p>
+    {% endif %}
+  {% elsif search.keywords %}
     {% paginate_tag search.pages, as: 'items' %}
       {% for result in items %}
         <div class="docs-body">
