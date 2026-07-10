@@ -7,7 +7,6 @@
       <div class="author-info">
         <h3 class="author-name">睿屿青衫</h3>
         <p class="author-desc">希望我们能在前行的路上久别重逢</p>
-        <p class="author-bio">希望我们能在前行的路上久别重逢</p>
       </div>
     </section>
 
@@ -32,9 +31,15 @@
     </section>
 
     <section class="aside-tags-card">
-      <div class="tags-scroll-container" id="tags-scroll-container">
-        <div class="tags-content" id="tags-content"></div>
+      <div class="card-stack" id="card-stack">
+        {% for tag in site.tags %}
+        <a href="/search?tag={{ tag.name | url_encode }}" class="message-card">
+          <span class="msg-hashtag">#</span>
+          <span class="msg-name">{{ tag.name }}</span>
+        </a>
+        {% endfor %}
       </div>
+      <div class="stack-footer" id="stack-footer"></div>
     </section>
 
     <section class="aside-copyright-card">
@@ -60,33 +65,157 @@
   })();
 
   (function() {
-    var container = document.getElementById('tags-content');
-    if (!container) return;
-    var knownTags = ["Linux", "Java", "BigData", "C++", "Python", "upyun", "生活"];
-    function createTagElement(tag) {
-      var el = document.createElement('a');
-      el.href = '/search?tag=' + encodeURIComponent(tag);
-      el.className = 'tag-item';
-      el.innerHTML = '<span class="tag-name">#' + tag + '</span>';
-      return el;
+    var stack = document.getElementById('card-stack');
+    var footer = document.getElementById('stack-footer');
+    if (!stack) return;
+
+    var cards = Array.from(stack.querySelectorAll('.message-card'));
+    var total = cards.length;
+    if (total === 0) return;
+
+    var VISIBLE = 3;
+    var PEEK = 10;
+    var DURATION = 350;
+    var isAnimating = false;
+    var touchStartY = 0;
+    var currentIndex = 0;
+
+    function layoutCards(animate) {
+      cards.forEach(function(card, i) {
+        var y = i * PEEK;
+        card.style.transition = animate ? 'transform 0.3s ease, opacity 0.3s ease' : 'none';
+        card.style.display = '';
+        card.style.pointerEvents = 'none';
+        if (i < VISIBLE) {
+          card.style.transform = 'translateY(' + y + 'px)';
+          card.style.zIndex = VISIBLE - i;
+          card.style.opacity = 1;
+          if (i === 0) card.style.pointerEvents = 'auto';
+        } else {
+          card.style.transform = 'translateY(' + y + 'px)';
+          card.style.zIndex = 0;
+          card.style.opacity = 0;
+        }
+      });
+      footer.textContent = ((currentIndex % total) + 1) + ' / ' + total;
     }
-    knownTags.forEach(function(tag) { container.appendChild(createTagElement(tag)); });
-    knownTags.forEach(function(tag) { container.appendChild(createTagElement(tag)); });
-    var scrollContainer = document.getElementById('tags-scroll-container');
-    if (!scrollContainer) return;
-    var currentTranslateX = 0, isPaused = false, lastTime = 0, speed = 25;
-    setTimeout(function() { currentTranslateX = -container.scrollWidth / 2; requestAnimationFrame(animate); }, 100);
-    function animate(now) {
-      if (!lastTime) lastTime = now;
-      var dt = (now - lastTime) / 1000; lastTime = now;
-      if (!isPaused) {
-        currentTranslateX += speed * dt;
-        if (currentTranslateX >= 0) currentTranslateX = -container.scrollWidth / 2;
-        container.style.transform = 'translateX(' + currentTranslateX + 'px)';
+
+    function dismissTop() {
+      if (isAnimating || total <= 1) return;
+      isAnimating = true;
+
+      var top = cards[0];
+      top.style.transition = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + (DURATION * 0.85) + 'ms ease';
+      top.style.transform = 'translateY(-80px)';
+      top.style.opacity = '0';
+      top.style.zIndex = '999';
+
+      var second = cards[1];
+      var third = cards[2];
+      if (second) {
+        second.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+        second.style.transform = 'translateY(0)';
       }
-      requestAnimationFrame(animate);
+      if (third) {
+        third.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+        third.style.transform = 'translateY(' + PEEK + 'px)';
+      }
+
+      setTimeout(function() {
+        stack.appendChild(top);
+        cards = Array.from(stack.querySelectorAll('.message-card'));
+        currentIndex = (currentIndex + 1) % total;
+
+        top.style.transition = 'none';
+        var lastIdx = cards.length - 1;
+        top.style.transform = 'translateY(' + (lastIdx * PEEK) + 'px)';
+        top.style.opacity = '0';
+        top.style.zIndex = '0';
+        top.style.pointerEvents = 'none';
+
+        void top.offsetHeight;
+        layoutCards(true);
+
+        setTimeout(function() {
+          cards.forEach(function(c) { c.style.transition = ''; });
+          isAnimating = false;
+        }, DURATION);
+      }, DURATION);
     }
-    scrollContainer.addEventListener('mouseenter', function() { isPaused = true; });
-    scrollContainer.addEventListener('mouseleave', function() { isPaused = false; });
+
+    function restoreTop() {
+      if (isAnimating || total <= 1) return;
+      isAnimating = true;
+
+      var last = cards[cards.length - 1];
+      var first = cards[0];
+      var second = cards[1];
+
+      if (first) {
+        first.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+        first.style.transform = 'translateY(' + PEEK + 'px)';
+      }
+      if (second) {
+        second.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+        second.style.transform = 'translateY(' + (2 * PEEK) + 'px)';
+      }
+
+      var restoreY = cards.length * PEEK;
+      last.style.transition = 'none';
+      last.style.display = '';
+      last.style.transform = 'translateY(' + restoreY + 'px)';
+      last.style.opacity = '0.5';
+      last.style.zIndex = '999';
+      last.style.pointerEvents = 'none';
+
+      void last.offsetHeight;
+
+      last.style.transition = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + (DURATION * 0.85) + 'ms ease';
+      last.style.transform = 'translateY(0)';
+      last.style.opacity = '1';
+
+      setTimeout(function() {
+        stack.insertBefore(last, stack.firstChild);
+        cards = Array.from(stack.querySelectorAll('.message-card'));
+        currentIndex = (currentIndex - 1 + total) % total;
+
+        last.style.transition = 'none';
+        var lastIdx = cards.length - 1;
+        last.style.transform = 'translateY(' + (lastIdx * PEEK) + 'px)';
+        last.style.opacity = '0';
+        last.style.zIndex = '0';
+
+        void last.offsetHeight;
+        layoutCards(true);
+
+        setTimeout(function() {
+          cards.forEach(function(c) { c.style.transition = ''; });
+          isAnimating = false;
+        }, DURATION);
+      }, DURATION);
+    }
+
+    stack.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      if (e.deltaY > 0) dismissTop();
+      else restoreTop();
+    }, { passive: false });
+
+    stack.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    stack.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    stack.addEventListener('touchend', function(e) {
+      var dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy < -20) dismissTop();
+      else if (dy > 20) restoreTop();
+    }, { passive: true });
+
+    layoutCards(false);
+    setTimeout(function() { cards.forEach(function(c) { c.style.transition = ''; }); }, 50);
   })();
 </script>
