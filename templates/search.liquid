@@ -4,32 +4,29 @@
     <input type="search" name="{{ form.keywords_field_name }}" value="{{ search.keywords | escape_once }}" placeholder="搜索..." />
   {% endform_tag %}
 
-  {% if search.tag %}
-    {% assign found = false %}
-    {% for page in site.pages %}
-      {% if page.seo_keywords contains search.tag %}
-        {% assign found = true %}
-        <div class="docs-body">
-          <a href="{{ page.path }}"><h2 class="docs-h">{{ page.link_text }}</h2></a>
-          <p class="docs-p">{{ page.settings.description }}</p>
-        </div>
+  {% assign query = search.tag | default: search.keywords %}
+  {% assign found = false %}
+  {% for page in site.pages %}
+    {% assign match = false %}
+    {% if search.tag and page.seo_keywords contains search.tag %}
+      {% assign match = true %}
+    {% elsif search.keywords %}
+      {% assign kw = search.keywords | downcase %}
+      {% assign haystacks = page.link_text | append: ' ' | append: page.settings.title | append: ' ' | append: page.seo_keywords | append: ' ' | append: page.settings.description | downcase %}
+      {% if haystacks contains kw %}
+        {% assign match = true %}
       {% endif %}
-    {% endfor %}
-    {% if found == false %}
-      <p>未找到结果</p>
     {% endif %}
-  {% elsif search.keywords %}
-    {% paginate_tag search.pages, as: 'items' %}
-      {% for result in items %}
-        <div class="docs-body">
-          <a href="{{ result.path }}"><h2 class="docs-h">{{ result.link_text }}</h2></a>
-          <p class="docs-p">{{ result.settings.description }}</p>
-        </div>
-      {% else %}
-        <p>未找到结果</p>
-      {% endfor %}
-      {% if paginate.total_pages > 1 %}{% render 'paginate', paginate: paginate %}{% endif %}
-    {% endpaginate_tag %}
+    {% if match %}
+      {% assign found = true %}
+      <div class="docs-body">
+        <a href="{{ page.path }}"><h2 class="docs-h">{{ page.link_text }}</h2></a>
+        <p class="docs-p">{{ page.settings.description }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+  {% if found == false %}
+    <p>未找到结果</p>
   {% endif %}
 </div>
 
