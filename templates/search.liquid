@@ -4,7 +4,7 @@
     <input type="search" name="{{ form.keywords_field_name }}" value="{{ search.keywords | escape_once }}" placeholder="搜索..." />
   {% endform_tag %}
 
-  {% if search.keywords or search.tag %}
+  {% if search.keywords %}
     {% paginate_tag search.pages, as: 'items' %}
       {% for result in items %}
         <div class="docs-body">
