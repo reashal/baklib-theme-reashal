@@ -32,10 +32,11 @@
 
     <section class="aside-tags-card">
       <div class="card-stack" id="card-stack">
-        {% for tag in site.tags %}
-        <a href="/search?tag={{ tag.name | url_encode }}" class="message-card">
+        {% assign tags = "Linux,Java,BigData,C++,Python,upyun,生活" | split: "," %}
+        {% for tag in tags %}
+        <a href="/search?tag={{ tag | url_encode }}" class="message-card">
           <span class="msg-hashtag">#</span>
-          <span class="msg-name">{{ tag.name }}</span>
+          <span class="msg-name">{{ tag }}</span>
         </a>
         {% endfor %}
       </div>
