@@ -33,7 +33,7 @@
     <section class="aside-tags-card">
       <div class="card-stack" id="card-stack">
         {% for tag in site.tags %}
-        <a href="/search?tag={{ tag.name | url_encode }}" class="message-card">
+        <a href="/search?q={{ tag.name | url_encode }}" class="message-card">
           <span class="msg-hashtag">#</span>
           <span class="msg-name">{{ tag.name }}</span>
         </a>
