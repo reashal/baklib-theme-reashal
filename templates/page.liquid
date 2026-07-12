@@ -17,7 +17,8 @@
   {% assign prefix = page.path | append: "/" %}
   <article class="article-container docs" id="docs-container">
     {% assign found = false %}
-    {% for item in site.pages %}
+    {% assign sorted = site.pages | sort: "path" | reverse %}
+    {% for item in sorted %}
       {% if item.path != page.path and item.path contains prefix %}
         {% assign found = true %}
         <div class="docs-body">
@@ -30,6 +31,7 @@
     {% unless found %}
       <div class="docs-body"><p class="docs-p">暂无文章</p></div>
     {% endunless %}
+    {% render 'article_list_tail' %}
   </article>
 {% elsif page.children.size > 0 %}
   {% comment %}--- Article listing mode (via page.children) ---{% endcomment %}
@@ -42,6 +44,7 @@
         <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
       </div>
     {% endfor %}
+    {% render 'article_list_tail' %}
   </article>
 {% elsif is_moment %}
   {% comment %}--- Moment detail mode ---{% endcomment %}
