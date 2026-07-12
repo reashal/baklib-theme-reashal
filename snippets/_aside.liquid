@@ -36,6 +36,7 @@
          <a href="/search?tag={{ tag.name | url_encode }}" class="message-card">
           <span class="msg-hashtag">#</span>
           <span class="msg-name">{{ tag.name }}</span>
+          <span class="msg-count">{{ tag.pages_count }}</span>
         </a>
         {% endfor %}
       </div>
