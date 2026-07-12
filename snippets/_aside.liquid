@@ -11,29 +11,33 @@
     </section>
 
     <section class="aside-links-card">
+      {% capture default_nav %}动态|/|icon-Home
+随笔|/docs|icon-pencil
+展示|/showcase/stuff|icon-pc
+仓库|https://github.com/reashal|icon-github
+游弋|https://uuuu.ee|icon-planet{% endcapture %}
       {% assign raw_links = site.settings.external_links | strip %}
-      {% if raw_links != blank %}
-        {% assign link_lines = raw_links | newline_to_br | strip_newlines | split: "<br />" %}
-        {% for line in link_lines %}
-          {% assign parts = line | split: "|" %}
-          {% assign link_label = parts[0] | strip %}
-          {% assign link_href = parts[1] | strip %}
-          {% assign link_icon = parts[2] | strip %}
-          {% assign is_external = link_href contains 'http' %}
-          {% if link_href == '/' %}
-            {% assign is_active = current_path == '/' or current_path == '' %}
-          {% elsif link_href contains '/showcase/' %}
-            {% assign is_active = current_path contains '/showcase/' %}
-          {% elsif is_external %}
-            {% assign is_active = false %}
-          {% else %}
-            {% assign is_active = current_path != '/' and current_path contains link_href %}
-          {% endif %}
-          <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_active %} class="active"{% endif %}>
-            {% if link_icon != blank %}<i class="iconfont {{ link_icon }}"></i> {% endif %}{{ link_label }}
-          </a>
-        {% endfor %}
-      {% endif %}
+      {% if raw_links == blank %}{% assign raw_links = default_nav %}{% endif %}
+      {% assign link_lines = raw_links | newline_to_br | strip_newlines | split: "<br />" %}
+      {% for line in link_lines %}
+        {% assign parts = line | split: "|" %}
+        {% assign link_label = parts[0] | strip %}
+        {% assign link_href = parts[1] | strip %}
+        {% assign link_icon = parts[2] | strip %}
+        {% assign is_external = link_href contains 'http' %}
+        {% if link_href == '/' %}
+          {% assign is_active = current_path == '/' or current_path == '' %}
+        {% elsif link_href contains '/showcase/' %}
+          {% assign is_active = current_path contains '/showcase/' %}
+        {% elsif is_external %}
+          {% assign is_active = false %}
+        {% else %}
+          {% assign is_active = current_path != '/' and current_path contains link_href %}
+        {% endif %}
+        <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_active %} class="active"{% endif %}>
+          {% if link_icon != blank %}<i class="iconfont {{ link_icon }}"></i> {% endif %}{{ link_label }}
+        </a>
+      {% endfor %}
     </section>
 
     <section class="aside-share-card">
