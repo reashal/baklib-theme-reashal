@@ -1,4 +1,4 @@
-<div class="article-container docs">
+<article class="article-container docs" id="docs-container">
   {% assign tag_param = params.tag %}
   {% assign q_param = params.q %}
   {% assign tag_name = search.tag.name | default: search.tag | default: tag_param %}
@@ -24,15 +24,16 @@
     {% if match %}
       {% assign found = true %}
       <div class="docs-body">
-        <a href="{{ page.path }}"><h2 class="docs-h">{{ page.link_text }}</h2></a>
+        <a href="{{ page.path }}" class="docs-a"><h2 class="docs-h">{{ page.link_text }}</h2></a>
         <p class="docs-p">{{ page.settings.description }}</p>
+        <time class="docs-t">{{ page.published_at | date: "%Y-%m-%d" }}</time>
       </div>
     {% endif %}
   {% endfor %}
   {% if found == false %}
-    <p>未找到结果</p>
+    <div class="docs-body"><p class="docs-p">未找到结果</p></div>
   {% endif %}
-</div>
+</article>
 
 {% schema %}
   {
