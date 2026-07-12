@@ -6,9 +6,10 @@
 
   {% assign tag_name = search.tag.name | default: search.tag %}
   {% assign found = false %}
-  {% for page in site.pages %}
+  {% assign all_pages = site.pages | where: 'template_name', 'page' %}
+  {% for page in all_pages %}
     {% assign match = false %}
-    {% if tag_name and page.seo_keywords contains tag_name %}
+    {% if tag_name and page.seo_keywords != blank and page.seo_keywords contains tag_name %}
       {% assign match = true %}
     {% elsif search.keywords %}
       {% assign kw = search.keywords | downcase %}
