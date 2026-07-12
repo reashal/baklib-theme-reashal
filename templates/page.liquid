@@ -18,7 +18,13 @@
   <article class="article-container docs" id="docs-container">
     {% assign found = false %}
     {% for item in site.pages %}
+      {% assign in_section = false %}
       {% if item.path != page.path and item.path contains prefix %}
+        {% assign in_section = true %}
+      {% elsif page.path == "/life" and item.path contains "/m-" %}
+        {% assign in_section = true %}
+      {% endif %}
+      {% if in_section %}
         {% assign found = true %}
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>

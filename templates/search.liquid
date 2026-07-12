@@ -1,20 +1,23 @@
 <div class="article-container docs">
-  <h1>{{ search.tag.name | default: search.tag | default: '搜索' }}</h1>
+  {% assign tag_param = params.tag %}
+  {% assign q_param = params.q %}
+  {% assign tag_name = search.tag.name | default: search.tag | default: tag_param %}
+  {% assign kw = search.keywords | default: q_param %}
+  <h1>{{ tag_name | default: kw | default: '搜索' }}</h1>
   {% form_tag 'search' %}
-    <input type="search" name="{{ form.keywords_field_name }}" value="{{ search.keywords | escape_once }}" placeholder="搜索..." />
+    <input type="search" name="{{ form.keywords_field_name }}" value="{{ kw | escape_once }}" placeholder="搜索..." />
   {% endform_tag %}
 
-  {% assign tag_name = search.tag.name | default: search.tag %}
   {% assign found = false %}
   {% assign all_pages = site.pages | where: 'template_name', 'page' %}
   {% for page in all_pages %}
     {% assign match = false %}
     {% if tag_name and page.seo_keywords != blank and page.seo_keywords contains tag_name %}
       {% assign match = true %}
-    {% elsif search.keywords %}
-      {% assign kw = search.keywords | downcase %}
+    {% elsif kw %}
+      {% assign kw_lower = kw | downcase %}
       {% assign haystacks = page.link_text | append: ' ' | append: page.settings.title | append: ' ' | append: page.seo_keywords | append: ' ' | append: page.settings.description | downcase %}
-      {% if haystacks contains kw %}
+      {% if haystacks contains kw_lower %}
         {% assign match = true %}
       {% endif %}
     {% endif %}
