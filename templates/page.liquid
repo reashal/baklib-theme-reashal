@@ -87,8 +87,20 @@
   <article class="article-container doc">
     <h1>{{ page.settings.title | default: page.link_text }}</h1>
     <div class="doc-content">{{ page.settings.content | default: page.content }}</div>
-    {% if page.tags != blank %}
-      <section class="article-tags">{% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}</section>
+    {% assign article_tags = page.settings.tags | default: page.tags %}
+    {% if article_tags != blank %}
+      <section class="article-tags">
+        {% for tag in article_tags %}
+          <a href="{{ tag.path }}" class="tag">{{ tag.name }}</a>
+        {% endfor %}
+      </section>
+    {% elsif page.seo_keywords != blank %}
+      {% assign kw_tags = page.seo_keywords | split: ", " %}
+      <section class="article-tags">
+        {% for kw in kw_tags %}
+          <a href="/search?tag={{ kw | url_encode }}" class="tag">{{ kw }}</a>
+        {% endfor %}
+      </section>
     {% endif %}
     <section class="article-copy">
       <div>本文作者：<a href="https://www.reashal.com{{ page.path }}" target="_blank">睿屿青衫</a></div>
@@ -113,7 +125,8 @@
       { "id": "location", "type": "text", "label": "动态位置" },
       { "id": "stars", "type": "text", "label": "动态点赞（逗号分隔）" },
       { "id": "comments", "type": "textarea", "label": "动态评论（每行一条）" },
-      { "id": "content", "type": "richtext", "label": "正文内容" }
+      { "id": "content", "type": "richtext", "label": "正文内容" },
+      { "id": "tags", "type": "tag_picker", "multiple": true, "label": "标签" }
     ]
   }
 {% endschema %}
