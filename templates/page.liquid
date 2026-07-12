@@ -17,7 +17,7 @@
   {% assign prefix = page.path | append: "/" %}
   <article class="article-container docs" id="docs-container">
     {% assign found = false %}
-    {% assign sorted = site.pages | sort: "path" | reverse %}
+    {% assign sorted = site.pages | sort: "published_at" | reverse %}
     {% for item in sorted %}
       {% if item.path != page.path and item.path contains prefix %}
         {% assign found = true %}
