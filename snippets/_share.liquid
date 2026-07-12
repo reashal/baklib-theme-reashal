@@ -35,7 +35,7 @@
   shareBtn.addEventListener('click',function(){
     currentUrl=window.location.href;
     currentTitle=document.title.split('｜')[0].trim();
-    currentDescription=(document.querySelector('meta[name="description"]')||{}).getAttribute('content')||'';
+    var metaDescription=document.querySelector('meta[name="description"]');currentDescription=metaDescription?metaDescription.getAttribute('content'):'';
     titleEl.textContent=currentTitle;
     descEl.textContent=currentDescription;
     descEl.style.display=currentDescription?'block':'none';
