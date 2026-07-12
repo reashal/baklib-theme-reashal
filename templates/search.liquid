@@ -5,7 +5,7 @@
   {% assign kw = search.keywords | default: q_param %}
 
   {% assign found = false %}
-  {% assign all_pages = site.pages | where: 'template_name', 'page' | sort: 'published_at' | reverse %}
+  {% assign all_pages = site.pages | where: 'template_name', 'page' | order_by: '-created_at' %}
   {% for page in all_pages %}
     {% assign match = false %}
     {% if tag_name and page.seo_keywords != blank and page.seo_keywords contains tag_name %}
