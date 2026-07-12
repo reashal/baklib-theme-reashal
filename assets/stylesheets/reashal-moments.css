@@ -103,7 +103,8 @@
 
 /* === 图片展示区域 === */
 .moment-images {
-    margin-bottom: 0;
+    margin-top: .4rem;
+    margin-bottom: .6rem;
 }
 
 .moment-images img {
