@@ -107,19 +107,23 @@
   {% comment %}--- Standard article detail mode ---{% endcomment %}
   <article class="article-container doc">
     <h1>{{ page.settings.title | default: page.link_text }}</h1>
-    <div class="doc-content">{{ page.settings.content | default: page.content }}</div>
+    {% assign doc_content = page.settings.content | default: page.content %}
+    {% assign img_upyun1 = 'images/docs/UPYUN/bak-domains.png' | asset_url %}
+    {% assign img_upyun2 = 'images/docs/UPYUN/bak-domains2.png' | asset_url %}
+    {% assign doc_content = doc_content | replace: '/images/docs/UPYUN/bak-domains.png', img_upyun1 | replace: '/images/docs/UPYUN/bak-domains2.png', img_upyun2 %}
+    <div class="doc-content">{{ doc_content }}</div>
     {% assign article_tags = page.settings.tags | default: page.tags %}
     {% if article_tags != blank %}
       <section class="article-tags">
         {% for tag in article_tags %}
-          <a href="{{ tag.path }}" class="tag">{{ tag.name }}</a>
+          <span class="tag">{{ tag.name }}</span>
         {% endfor %}
       </section>
     {% elsif page.seo_keywords != blank %}
       {% assign kw_tags = page.seo_keywords | split: ", " %}
       <section class="article-tags">
         {% for kw in kw_tags %}
-          <a href="/search?tag={{ kw | url_encode }}" class="tag">{{ kw }}</a>
+          <span class="tag">{{ kw }}</span>
         {% endfor %}
       </section>
     {% endif %}
