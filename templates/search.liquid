@@ -22,7 +22,7 @@
       <div class="docs-body" data-article-index="{{ forloop.index0 }}">
         <a href="{{ page.path }}" class="docs-a"><h2 class="docs-h">{{ page.link_text }}</h2></a>
         <p class="docs-p">{{ page.settings.description }}</p>
-        <time class="docs-t">{{ page.settings.pubDate }}</time>
+        <time class="docs-t">{{ page.seo_description | default: page.settings.date }}</time>
       </div>
     {% endif %}
   {% endfor %}

@@ -1,6 +1,10 @@
 
 
-{% assign is_moment = page.settings.date %}
+{% assign is_moment = false %}
+{% assign _path_parts = page.path | split: "/" %}
+{% if _path_parts.size == 2 and _path_parts[1] != "" and page.settings.date != blank and page.settings.description == blank %}
+  {% assign is_moment = true %}
+{% endif %}
 {% assign is_section = false %}
 {% if page.path == "/docs" %}
   {% assign is_section = true %}
@@ -21,7 +25,7 @@
         <div class="docs-body docs-fixed">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
-          <time class="docs-t">{{ item.settings.pubDate }}</time>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
         </div>
       {% endif %}
     {% endfor %}
@@ -31,7 +35,7 @@
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
-          <time class="docs-t">{{ item.settings.pubDate }}</time>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
         </div>
       {% endif %}
     {% endfor %}
@@ -49,7 +53,7 @@
         <div class="docs-body docs-fixed">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
-          <time class="docs-t">{{ item.settings.pubDate }}</time>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
         </div>
       {% endif %}
     {% endfor %}
@@ -58,7 +62,7 @@
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
-          <time class="docs-t">{{ item.settings.pubDate }}</time>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
         </div>
       {% endif %}
     {% endfor %}
@@ -145,9 +149,8 @@
     "settings": [
       { "id": "title", "type": "text", "label": "页面标题" },
       { "id": "pinned", "type": "checkbox", "label": "置顶文章", "default": false, "info": "开启后该文章将在列表最前显示" },
-      { "id": "pubDate", "type": "text", "label": "原始发表日期" },
       { "id": "description", "type": "textarea", "label": "页面描述" },
-      { "id": "date", "type": "text", "label": "动态日期（动态模式专用）", "queryable": true },
+      { "id": "date", "type": "text", "label": "发表日期", "queryable": true },
       { "id": "images", "type": "textarea", "label": "动态图片（每行：URL|alt）" },
       { "id": "location", "type": "text", "label": "动态位置" },
       { "id": "stars", "type": "text", "label": "动态点赞（逗号分隔）" },
