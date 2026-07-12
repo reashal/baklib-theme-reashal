@@ -16,7 +16,17 @@
     {% assign found = false %}
     {% assign sorted = site.pages | order_by: '-created_at' %}
     {% for item in sorted %}
-      {% if item.path != page.path and item.path contains prefix %}
+      {% if item.path != page.path and item.path contains prefix and item.settings.pinned %}
+        {% assign found = true %}
+        <div class="docs-body docs-fixed">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% for item in sorted %}
+      {% if item.path != page.path and item.path contains prefix and item.settings.pinned == blank %}
         {% assign found = true %}
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
@@ -35,11 +45,22 @@
   {% assign sorted = page.children | sort: "published_at" | reverse %}
   <article class="article-container docs" id="docs-container">
     {% for item in sorted %}
-      <div class="docs-body">
-        <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
-        <p class="docs-p">{{ item.settings.description }}</p>
-        <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
-      </div>
+      {% if item.settings.pinned %}
+        <div class="docs-body docs-fixed">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% for item in sorted %}
+      {% if item.settings.pinned == blank %}
+        <div class="docs-body">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.published_at | date: "%Y-%m-%d" }}</time>
+        </div>
+      {% endif %}
     {% endfor %}
     {% render 'article_list_tail' %}
   </article>
@@ -119,6 +140,7 @@
     "description": "标准页面（自动判断列表/详情/动态模式）",
     "settings": [
       { "id": "title", "type": "text", "label": "页面标题" },
+      { "id": "pinned", "type": "checkbox", "label": "置顶文章", "default": false, "info": "开启后该文章将在列表最前显示" },
       { "id": "description", "type": "textarea", "label": "页面描述" },
       { "id": "date", "type": "text", "label": "动态日期（动态模式专用）", "queryable": true },
       { "id": "images", "type": "textarea", "label": "动态图片（每行：URL|alt）" },
