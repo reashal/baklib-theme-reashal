@@ -24,8 +24,8 @@
         "id": "external_links",
         "type": "textarea",
         "label": "导航链接",
-        "info": "每行一个，格式：标题|URL|类型（internal/或留空）",
-        "default": "仓库|https://github.com/reashal\n游弋|https://uuuu.ee"
+        "info": "每行一个，格式：标题|路径|icon类名（如 icon-Home）。内链自动高亮激活态，外链(http开头)新标签打开。",
+        "default": "动态|/|icon-Home\n随笔|/docs|icon-pencil\n展示|/showcase/stuff|icon-pc\n仓库|https://github.com/reashal|icon-github\n游弋|https://uuuu.ee|icon-planet"
       }
     ]
   },
