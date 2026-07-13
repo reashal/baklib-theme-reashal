@@ -112,7 +112,7 @@
   <article class="article-container doc">
     <h1>{{ page.settings.title | default: page.link_text }}</h1>
     {% assign doc_content = page.settings.content | default: page.content %}
-    {% assign doc_content = doc_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+    {% assign doc_content = doc_content | replace: '/images/docs/', 'https://www.reashal.com/images/docs/' | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
     {{ doc_content }}
     {% assign article_tags = page.settings.tags | default: page.tags %}
     {% if article_tags != blank %}
