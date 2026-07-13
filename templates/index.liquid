@@ -1,5 +1,6 @@
 <article class="article-container">
-  <section class="moments">
+    <section class="moments">
+            <h1>动态</h1>
     {% assign has = false %}
     {% for p in site.pages %}
       {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
@@ -19,18 +20,29 @@
         </header>
         <section class="moment-content">
           <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+          {% if p.content != blank %}{{ p.content }}{% endif %}
         </section>
-        {% if p.content != blank %}
-          <section class="moment-content">{{ p.content }}</section>
-        {% endif %}
         {% if p.settings.images != blank %}
           {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-          <section class="moment-images">
-            {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" />{% endfor %}
+          {% assign img_count = img_lines | size %}
+          {% assign moment_date_key = p.settings.date | remove: "." %}
+          {% assign imgs_json = "[" %}
+          {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}{% assign url = img_parts[0] | strip | asset_url %}{% assign alt = img_parts[1] | strip %}{% assign imgs_json = imgs_json | append: '{"url":"' | append: url | append: '","alt":"' | append: alt | append: '"}' %}{% unless forloop.last %}{% assign imgs_json = imgs_json | append: "," %}{% endunless %}{% endfor %}
+          {% assign imgs_json = imgs_json | append: "]" %}
+          <section class="moment-images" data-moment-id="{{ moment_date_key }}" data-imgs='{{ imgs_json }}'>
+            {% if img_count == 1 %}
+              {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<figure class="img-single"><img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" decoding="async" class="view-none" /></figure>{% endfor %}
+            {% elsif img_count <= 4 %}
+              <figure class="img-grid img-grid-2x2">{% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" decoding="async" class="view-none" />{% endfor %}</figure>
+            {% elsif img_count <= 9 %}
+              <figure class="img-grid img-grid-3x3">{% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" decoding="async" class="view-none" />{% endfor %}</figure>
+            {% else %}
+              <figure class="img-grid img-grid-3x3">{% for img_line in img_lines limit:8 %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" decoding="async" class="view-none" />{% endfor %}{% assign img_p9 = img_lines[8] | split: "|" %}<div class="img-mask-overlay" style="background-image: url('{{ img_p9[0] | strip | asset_url }}')"><span class="img-mask-count">+{{ img_count | minus: 8 }}</span></div></figure>
+            {% endif %}
           </section>
         {% endif %}
         {% if p.settings.location != blank %}
-          <div class="moment-location"><code>{{ p.settings.location }}</code></div>
+          <div class="moment-location"><p><code>{{ p.settings.location }}</code></p></div>
         {% endif %}
         {% if p.settings.stars != blank or p.settings.comments != blank %}
           <section class="moment-interaction">
