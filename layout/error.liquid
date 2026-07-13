@@ -7,6 +7,7 @@
   <meta name="description" content="抱歉，您访问的页面不存在">
   {% meta_tags %}
   {% render 'theme_runtime_colors' %}
+  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
   {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
   {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
   <style>
