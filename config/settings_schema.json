@@ -18,6 +18,23 @@
     ]
   },
   {
+    "name": "首页设置",
+    "settings": [
+      {
+        "id": "index_title",
+        "type": "text",
+        "label": "首页标题",
+        "default": "动态"
+      },
+      {
+        "id": "index_description",
+        "type": "textarea",
+        "label": "首页描述",
+        "default": "以碎片化的记录汇聚时光的川流"
+      }
+    ]
+  },
+  {
     "name": "导航外链",
     "settings": [
       {

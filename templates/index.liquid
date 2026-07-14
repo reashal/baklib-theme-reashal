@@ -1,5 +1,6 @@
 <article class="article-container">
   <section class="moments">
+    <h1>{{ site.settings.index_title | default: '动态' }}</h1>
     {% assign has = false %}
     {% for p in site.pages %}
       {% if p.settings.date != blank %}{% assign has = true %}{% endif %}

@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.link_text }}｜睿屿青衫</title>
+  {% if page.template_name == 'index' %}
+    <title>{{ site.settings.index_title | default: '动态' }}｜{{ site.name }}</title>
+    <meta name="description" content="『{{ site.settings.index_description | default: '以碎片化的记录汇聚时光的川流' }}』『有限的文字无法写尽余生,希望我们能在前行的路上久别重逢』">
+  {% else %}
+    <title>{{ page.link_text }}｜{{ site.name }}</title>
+    {% if page.settings.description != blank %}
+      <meta name="description" content="{{ page.settings.description }}">
+    {% endif %}
+  {% endif %}
   <meta name="author" content="睿屿青衫">
   <meta name="keywords" content="睿屿青衫,reashal,blog,life,博客,随笔,记录,点滴,主页">
   <link rel="icon" href="{{ 'favicon.svg' | asset_url }}">
