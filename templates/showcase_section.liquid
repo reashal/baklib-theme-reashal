@@ -1,0 +1,47 @@
+{% schema %}
+{
+  "label": "展示分区",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "页面标题",
+      "default": "展示分区"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "页面描述（SEO）",
+      "default": ""
+    },
+    {
+      "type": "textarea",
+      "id": "cards_json",
+      "label": "展示数据（JSON）",
+      "default": "{}",
+      "info": "与 Astro showcase.json 中每个 collection 的格式一致，包含 intro / sections / showFooter 等字段"
+    }
+  ]
+}
+{% endschema %}
+
+{% assign current_page = page %}
+{% assign showcase_sections = page.parent.children | sort: "published_at" %}
+
+<article class="article-container showcase">
+  <nav class="showcase-nav">
+    {% for section in showcase_sections %}
+      <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
+        <span>{{ section.link_text }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <div id="showcase-root">
+    <h2 class="showcase-h">加载中...</h2>
+  </div>
+
+  <script id="showcase-data" type="application/json">
+    {{ page.settings.cards_json }}
+  </script>
+</article>

@@ -1,0 +1,28 @@
+<article class="article-container showcase">
+  <nav class="showcase-nav">
+    {% assign sorted_sections = page.children | sort: "published_at" %}
+    {% for section in sorted_sections %}
+      <a href="{{ section.path }}">
+        <span>{{ section.link_text }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <h2 class="showcase-h">展示</h2>
+  {% if page.settings.description != blank %}
+    <p class="showcase-p">{{ page.settings.description }}</p>
+  {% endif %}
+
+  <div class="showcase-body">
+    {% for section in sorted_sections %}
+      <a href="{{ section.path }}" class="showcase-app-card">
+        <div class="showcase-info">
+          <h3>{{ section.link_text }}</h3>
+          {% if section.settings.description != blank %}
+            <p>{{ section.settings.description }}</p>
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</article>
