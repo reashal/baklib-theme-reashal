@@ -673,16 +673,16 @@ lucide/dist/esm/lucide.mjs:
  */
 
 (function() {
-  var dataEl = document.getElementById('showcase-data');
-  if (!dataEl) return;
-  var root = document.getElementById('showcase-root');
-  if (!root) return;
+  function renderShowcase() {
+    var dataEl = document.getElementById('showcase-data');
+    if (!dataEl) return;
+    var root = document.getElementById('showcase-root');
+    if (!root) return;
 
-  var config;
-  try { config = JSON.parse(dataEl.value); } catch (e) { return; }
-  root.innerHTML = '';
+    var config;
+    try { config = JSON.parse(dataEl.value); } catch (e) { return; }
+    root.innerHTML = '';
 
-  function render() {
     if (config.intro) {
       var h = document.createElement('h2');
       h.className = 'showcase-h showcase-intro';
@@ -784,9 +784,7 @@ lucide/dist/esm/lucide.mjs:
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
-  } else {
-    render();
-  }
+  renderShowcase();
+  document.addEventListener('turbo:load', renderShowcase);
+  document.addEventListener('turbolinks:load', renderShowcase);
 })();
