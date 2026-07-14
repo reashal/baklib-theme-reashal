@@ -1,5 +1,5 @@
 <div class="share-container">
-    <button class="share-btn" id="share-btn" aria-label="分享文章">
+    <button class="share-btn" id="share-btn" aria-label="分享文章" data-site-name="{{ site.name }}">
         <span>分享</span>
     </button>
 </div>
@@ -46,7 +46,7 @@
   overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('show');});
   copyBtn.addEventListener('click',function(){
     inputEl.select();
-    var text='我从『睿屿青衫』为您分享了一篇文章～\n标题：'+currentTitle+'\n摘要：'+(currentDescription||'暂无摘要')+'\n链接：'+currentUrl;
+    var siteName=shareBtn.getAttribute('data-site-name')||'睿屿青衫';var text='我从『'+siteName+'』为您分享了一篇文章～\n标题：'+currentTitle+'\n摘要：'+(currentDescription||'暂无摘要')+'\n链接：'+currentUrl;
     navigator.clipboard.writeText(text).then(function(){alert('已复制到剪贴板');}).catch(function(){alert('复制失败，请手动复制链接');});
   });
   function generateQRCode(){

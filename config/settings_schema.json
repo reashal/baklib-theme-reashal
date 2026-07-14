@@ -31,6 +31,12 @@
         "type": "textarea",
         "label": "首页描述",
         "default": "以碎片化的记录汇聚时光的川流"
+      },
+      {
+        "id": "description_suffix",
+        "type": "text",
+        "label": "描述后缀",
+        "default": "有限的文字无法写尽余生,希望我们能在前行的路上久别重逢"
       }
     ]
   },
