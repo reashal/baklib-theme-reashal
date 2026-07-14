@@ -670,4 +670,123 @@ lucide/dist/esm/lucide.mjs:
    * This source code is licensed under the ISC license.
    * See the LICENSE file in the root directory of this source tree.
    *)
-*/
+ */
+
+(function() {
+  var dataEl = document.getElementById('showcase-data');
+  if (!dataEl) return;
+  var root = document.getElementById('showcase-root');
+  if (!root) return;
+
+  var config;
+  try { config = JSON.parse(dataEl.value); } catch (e) { return; }
+  root.innerHTML = '';
+
+  function render() {
+    if (config.intro) {
+      var h = document.createElement('h2');
+      h.className = 'showcase-h showcase-intro';
+      h.textContent = '写在前面';
+      root.appendChild(h);
+      config.intro.forEach(function(p) {
+        var pe = document.createElement('p');
+        pe.className = 'showcase-p';
+        pe.textContent = p;
+        root.appendChild(pe);
+      });
+    }
+
+    if (!config.sections) return;
+
+    config.sections.forEach(function(section) {
+      var heading = document.createElement('h2');
+      heading.className = 'showcase-h';
+      heading.textContent = section.title;
+      root.appendChild(heading);
+
+      var body = document.createElement('div');
+      body.className = 'showcase-body';
+
+      section.cards.forEach(function(card) {
+        var mode = card.imageMode || 'text-only';
+        var hasLink = card.link && card.link.trim() !== '';
+        var w = document.createElement(hasLink ? 'a' : 'div');
+        if (hasLink) { w.href = card.link; w.target = '_blank'; }
+        w.className = 'showcase-' + mode;
+
+        if (mode === 'icon-simple' || mode === 'app-card') {
+          var avatar = document.createElement('div');
+          avatar.className = 'showcase-avatar' + (card.image ? '' : ' no-image');
+          avatar.setAttribute('data-initial', (card.title || '?')[0]);
+          if (card.image) {
+            var img = document.createElement('img');
+            img.src = card.image; img.alt = card.title;
+            img.onerror = function() { this.style.display = 'none'; avatar.classList.add('no-image'); };
+            avatar.appendChild(img);
+          }
+          w.appendChild(avatar);
+        }
+
+        if (mode === 'product-card') {
+          var li = document.createElement('div');
+          li.className = 'showcase-large-image' + (card.image ? '' : ' no-image');
+          li.setAttribute('data-title', (card.title || '?')[0]);
+          if (card.image) {
+            var img = document.createElement('img');
+            img.src = card.image; img.alt = card.title;
+            img.onerror = function() { this.style.display = 'none'; li.classList.add('no-image'); };
+            li.appendChild(img);
+          }
+          w.appendChild(li);
+        }
+
+        var info = document.createElement('div');
+        info.className = 'showcase-info';
+
+        var titleEl = document.createElement('h3');
+        titleEl.textContent = card.title;
+        info.appendChild(titleEl);
+
+        if (card.specs) {
+          var specWrap = document.createElement('div');
+          specWrap.className = 'showcase-specs';
+          card.specs.forEach(function(s) {
+            var span = document.createElement('span');
+            span.className = 'showcase-spec';
+            span.textContent = s;
+            specWrap.appendChild(span);
+          });
+          info.appendChild(specWrap);
+        }
+
+        if (card.description) {
+          var desc = document.createElement('p');
+          desc.textContent = card.description;
+          info.appendChild(desc);
+        }
+
+        w.appendChild(info);
+        body.appendChild(w);
+      });
+
+      root.appendChild(body);
+    });
+
+    if (config.showFooter) {
+      var footer = document.createElement('section');
+      footer.className = 'article-copy';
+      ['名称：睿屿青衫', '网址：https://www.reashal.com', '描述：希望我们能在前行的路上久别重逢'].forEach(function(t) {
+        var d = document.createElement('div');
+        d.textContent = t;
+        footer.appendChild(d);
+      });
+      root.appendChild(footer);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    render();
+  }
+})();

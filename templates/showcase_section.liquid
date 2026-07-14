@@ -3,22 +3,10 @@
   "label": "展示分区",
   "settings": [
     {
-      "type": "text",
-      "id": "title",
-      "label": "页面标题",
-      "default": "展示分区"
-    },
-    {
       "type": "textarea",
-      "id": "description",
-      "label": "页面描述（SEO）",
-      "default": ""
-    },
-    {
-      "type": "richtext",
-      "id": "content",
-      "label": "正文内容",
-      "default": ""
+      "id": "cards_json",
+      "label": "展示数据（JSON）",
+      "default": "{}"
     }
   ]
 }
@@ -36,10 +24,9 @@
     {% endfor %}
   </nav>
 
-  {% assign doc_content = page.settings.content | default: page.content %}
-  {% if doc_content != blank %}
-    <section class="article-copy">
-      {{ doc_content }}
-    </section>
-  {% endif %}
+  <div id="showcase-root">
+    <h2 class="showcase-h">加载中...</h2>
+  </div>
+
+  <textarea id="showcase-data" style="display:none">{{ page.settings.cards_json }}</textarea>
 </article>

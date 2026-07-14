@@ -1,3 +1,17 @@
+{% schema %}
+{
+  "label": "展示",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "页面描述",
+      "default": ""
+    }
+  ]
+}
+{% endschema %}
+
 <article class="article-container showcase">
   <nav class="showcase-nav">
     {% assign sorted_sections = page.children | sort: "published_at" %}
