@@ -1,3 +1,29 @@
+{% schema %}
+{
+  "label": "展示分区",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "页面标题",
+      "default": "展示分区"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "页面描述（SEO）",
+      "default": ""
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "正文内容",
+      "default": ""
+    }
+  ]
+}
+{% endschema %}
+
 {% assign current_page = page %}
 {% assign showcase_sections = page.parent.children | sort: "published_at" %}
 
@@ -10,9 +36,10 @@
     {% endfor %}
   </nav>
 
-  {% if page.content != blank %}
+  {% assign doc_content = page.settings.content | default: page.content %}
+  {% if doc_content != blank %}
     <section class="article-copy">
-      {{ page.content }}
+      {{ doc_content }}
     </section>
   {% endif %}
 </article>
