@@ -13,14 +13,16 @@
 {% endschema %}
 
 {% assign current_page = page %}
-{% assign showcase_sections = page.parent.children | sort: "published_at" %}
+{% assign prefix = current_page.path | remove_first: current_page.slug %}
 
 <article class="article-container showcase">
   <nav class="showcase-nav">
-    {% for section in showcase_sections %}
-      <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
-        <span>{{ section.link_text }}</span>
-      </a>
+    {% for section in site.pages %}
+      {% if section.path contains prefix %}
+        <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
+          <span>{{ section.link_text }}</span>
+        </a>
+      {% endif %}
     {% endfor %}
   </nav>
 
