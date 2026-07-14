@@ -142,7 +142,7 @@ main {
     color: #f8fef3;
 }
 
-.article-copy a {
+.article-container .article-copy a {
     color: #fff;
 }
 
