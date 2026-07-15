@@ -1,0 +1,172 @@
+<article class="article-container">
+  <section class="moments">
+    <h1>动态管理</h1>
+
+    {% comment %}--- Moment list ---{% endcomment %}
+    {% assign has_moments = false %}
+    {% for p in site.pages reversed %}
+      {% if p.settings.date != blank %}{% assign has_moments = true %}{% endif %}
+    {% endfor %}
+    {% if has_moments %}
+      {% for p in site.pages reversed %}
+        {% if p.settings.date != blank %}
+      <article class="moment" id="{{ p.hashid | default: p.id }}">
+        <header class="moment-author">
+          <div class="author-info">
+            <span class="author-name">睿屿青衫</span>
+            <time class="author-date" datetime="{{ p.settings.date }}">{{ p.settings.date }}</time>
+          </div>
+        </header>
+        <section class="moment-content">
+          {% assign moment_content = p.settings.content | default: p.content %}
+          {% if moment_content != blank %}
+            {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+            {{ moment_content }}
+          {% else %}
+            <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+          {% endif %}
+        </section>
+        {% if p.settings.stars != blank or p.settings.comments != blank %}
+          <section class="moment-interaction">
+            {% if p.settings.stars != blank %}
+              {% assign star_list = p.settings.stars | split: "," %}
+              <div class="interaction-stars">{% for star in star_list %}<span class="star-item">{{ star | strip }}</span>{% endfor %}</div>
+            {% endif %}
+            {% if p.settings.comments != blank %}
+              {% assign comment_list = p.settings.comments | newline_to_br | strip_newlines | split: "<br />" %}
+              <div class="interaction-comments">
+                {% for comment in comment_list %}{% assign c = comment | strip %}{% if c != blank %}<p class="comment-item"><span class="comment-author">睿屿青衫:</span><span class="comment-text">{{ c }}</span></p>{% endif %}{% endfor %}
+              </div>
+            {% endif %}
+          </section>
+        {% endif %}
+      </article>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
+    {% endif %}
+
+    {% comment %}--- Publish form (admin only) ---{% endcomment %}
+    {% if current_user.present? %}
+    <section class="moment-publish" style="margin-top:2rem;padding:1.5rem;border:1px solid var(--color-border,#ddd);border-radius:8px;">
+      <h2 style="margin:0 0 1rem 0;font-size:1.1rem;">发布新动态</h2>
+      <form id="moment-form" style="display:flex;flex-direction:column;gap:0.75rem;">
+        <input name="date" type="text" placeholder="发表日期（如 2026.07.15）" required
+               style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;" />
+        <textarea name="content" rows="4" placeholder="动态内容（多段用空行分隔）" required
+                  style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;resize:vertical;"></textarea>
+        <textarea name="images" rows="2" placeholder="图片（每行：URL|alt，可选）"
+                  style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;resize:vertical;"></textarea>
+        <input name="location" type="text" placeholder="位置（可选）"
+               style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;" />
+        <input name="stars" type="text" placeholder="点赞（逗号分隔，可选）"
+               style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;" />
+        <textarea name="comments" rows="2" placeholder="评论（每行一条，可选）"
+                  style="padding:0.5rem;border:1px solid #ccc;border-radius:4px;resize:vertical;"></textarea>
+        <button type="submit" style="padding:0.6rem 1.5rem;background:var(--color-primary,#3a8);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.95rem;">
+          发布动态
+        </button>
+      </form>
+      <div id="moment-result" style="margin-top:0.75rem;font-size:0.9rem;"></div>
+    </section>
+
+    <script>
+    (function() {
+      var API_BASE = "https://open.baklib.com/api/v1";
+      var SITE_ID = "{{ site.id | default: '14085' }}";
+      var PARENT_ID = "{{ site.pages['/'].id | default: '554777' }}";
+      var API_TOKEN = "{{ site.settings.baklib_api_token }}";
+
+      document.getElementById('moment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var form = e.target;
+        var result = document.getElementById('moment-result');
+        var btn = form.querySelector('button[type="submit"]');
+
+        var date = form.date.value.trim();
+        var content = form.content.value.trim();
+        var images = form.images.value.trim();
+        var location = form.location.value.trim();
+        var stars = form.stars.value.trim();
+        var comments = form.comments.value.trim();
+
+        if (!date || !content) {
+          result.textContent = "日期和内容不能为空";
+          result.style.color = "red";
+          return;
+        }
+
+        var slug = "m-" + date.replace(/\./g, "");
+
+        var paragraphs = content.split(/\n\s*\n/).filter(function(p) { return p.trim(); });
+        var contentHtml = paragraphs.map(function(p) {
+          return '<div bke-role="paragraph">' + p.trim().replace(/\n/g, "<br>") + '</div>';
+        }).join("\n");
+
+        var templateVars = { date: date, content: contentHtml };
+        if (images) templateVars.images = images;
+        if (location) templateVars.location = location;
+        if (stars) templateVars.stars = stars;
+        if (comments) templateVars.comments = comments;
+
+        btn.disabled = true;
+        btn.textContent = "发布中...";
+        result.textContent = "";
+
+        fetch(API_BASE + "/sites/" + SITE_ID + "/pages", {
+          method: "POST",
+          headers: {
+            "Authorization": API_TOKEN,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            data: {
+              type: "page",
+              attributes: {
+                name: slug,
+                template_name: "moment",
+                published: true,
+                template_variables: templateVars
+              },
+              relationships: {
+                parent: { data: { type: "page", id: PARENT_ID } }
+              }
+            }
+          })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.data && data.data.id) {
+            result.textContent = "发布成功！正在刷新...";
+            result.style.color = "green";
+            setTimeout(function() { location.reload(); }, 1000);
+          } else if (data.errors) {
+            var msg = data.errors.map(function(e) { return e.detail || JSON.stringify(e); }).join("; ");
+            result.textContent = "发布失败：" + msg;
+            result.style.color = "red";
+            btn.disabled = false;
+            btn.textContent = "发布动态";
+          } else {
+            result.textContent = "发布失败：" + JSON.stringify(data);
+            result.style.color = "red";
+            btn.disabled = false;
+            btn.textContent = "发布动态";
+          }
+        })
+        .catch(function(err) {
+          result.textContent = "网络错误：" + err.message;
+          result.style.color = "red";
+          btn.disabled = false;
+          btn.textContent = "发布动态";
+        });
+      });
+    })();
+    </script>
+    {% endif %}
+
+    <footer class="moments-footer">
+      <p class="end-tip">故事暂且讲到这里</p>
+    </footer>
+  </section>
+</article>
