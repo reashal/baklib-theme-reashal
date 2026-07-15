@@ -81,7 +81,9 @@
             <time class="author-date" datetime="{{ page.settings.date }}">{{ page.settings.date }}</time>
           </div>
         </header>
-        {% if page.content != blank %}<section class="moment-content">{{ page.content }}</section>{% endif %}
+        {% assign moment_content = page.settings.content | default: page.content %}
+        {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+        {% if moment_content != blank %}<section class="moment-content">{{ moment_content }}</section>{% endif %}
         {% if page.settings.images != blank %}
           {% assign img_lines = page.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
           <section class="moment-images">
