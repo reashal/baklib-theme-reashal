@@ -64,5 +64,16 @@
         "placeholder": "t:schema.custom_html.settings.head_html.placeholder"
       }
     ]
+  },
+  {
+    "name": "动态管理",
+    "settings": [
+      {
+        "id": "baklib_api_token",
+        "type": "text",
+        "label": "动态发布 API Token",
+        "info": "用于 /s/moments 页面的前台动态发布功能。填入 Baklib Open API Token。仅在登录状态下显示发布表单。"
+      }
+    ]
   }
 ]
