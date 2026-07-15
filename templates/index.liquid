@@ -18,12 +18,15 @@
             <time class="author-date" datetime="{{ p.settings.date }}">{{ p.settings.date }}</time>
           </div>
         </header>
+        {% assign moment_content = p.settings.content | default: p.content %}
         <section class="moment-content">
-          <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+          {% if moment_content != blank %}
+            {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+            {{ moment_content }}
+          {% else %}
+            <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+          {% endif %}
         </section>
-        {% if p.content != blank %}
-          <section class="moment-content">{{ p.content }}</section>
-        {% endif %}
         {% if p.settings.images != blank %}
           {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
           <section class="moment-images">
