@@ -1,0 +1,15 @@
+{
+  "pulled_at": "2026-07-14T12:50:31.918Z",
+  "theme_id": "xvdsve",
+  "version": {
+    "id": "onlsvn1",
+    "label": "睿屿青衫",
+    "commit_oid": "fd1d5d5d2a4750fec48f128bcfc225741776b5ed",
+    "commit_hash": "d9aeeb0fe0fd92e87d97f26e9b234b5defc60dee"
+  },
+  "git": null,
+  "git_root": "/tmp/baklib-theme-reashal",
+  "out": "/tmp/baklib-theme-reashal",
+  "errors": [],
+  "warnings": []
+}

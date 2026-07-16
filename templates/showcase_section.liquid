@@ -1,0 +1,34 @@
+{% schema %}
+{
+  "label": "展示分区",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "cards_json",
+      "label": "展示数据（JSON）",
+      "default": "{}"
+    }
+  ]
+}
+{% endschema %}
+
+{% assign current_page = page %}
+{% assign prefix = current_page.path | remove_first: current_page.slug %}
+
+<article class="article-container showcase">
+  <nav class="showcase-nav">
+    {% for section in site.pages %}
+      {% if section.path contains prefix %}
+        <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
+          <span>{{ section.link_text }}</span>
+        </a>
+      {% endif %}
+    {% endfor %}
+  </nav>
+
+  <div id="showcase-root">
+    <h2 class="showcase-h">加载中...</h2>
+  </div>
+
+  <textarea id="showcase-data" style="display:none">{{ page.settings.cards_json }}</textarea>
+</article>

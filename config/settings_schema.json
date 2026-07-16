@@ -1,0 +1,68 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "reashal",
+    "theme_label": "睿屿青衫",
+    "theme_description": "睿屿青衫的个人博客主题，以动态流为核心，兼顾文章与展示",
+    "theme_version": "1.0.0",
+    "theme_syntax_version": "v2",
+    "theme_scope": "cms",
+    "theme_author": "reashal",
+    "theme_documentation_url": "https://github.com/reashal",
+    "theme_support_url": "https://github.com/reashal",
+    "theme_thumb_url": "images/thumbnail.png",
+    "theme_preview_images": ["images/wallpaper.webp", "images/reashal.svg"],
+    "theme_languages": [
+      { "name": "中文简体", "value": "zh-CN" },
+      { "name": "English", "value": "en" }
+    ]
+  },
+  {
+    "name": "首页设置",
+    "settings": [
+      {
+        "id": "index_title",
+        "type": "text",
+        "label": "首页标题",
+        "default": "动态"
+      },
+      {
+        "id": "index_description",
+        "type": "textarea",
+        "label": "首页描述",
+        "default": "以碎片化的记录汇聚时光的川流"
+      },
+      {
+        "id": "description_suffix",
+        "type": "text",
+        "label": "描述后缀",
+        "default": "有限的文字无法写尽余生,希望我们能在前行的路上久别重逢"
+      }
+    ]
+  },
+  {
+    "name": "导航外链",
+    "settings": [
+      {
+        "id": "external_links",
+        "type": "textarea",
+        "label": "导航链接",
+        "info": "每行一个，格式：标题|路径|icon类名（如 icon-Home）。内链自动高亮激活态，外链(http开头)新标签打开。",
+        "default": "动态|/|icon-Home\n随笔|/docs|icon-pencil\n展示|/showcase/stuff|icon-pc\n仓库|https://github.com/reashal|icon-github\n游弋|https://uuuu.ee|icon-planet"
+      }
+    ]
+  },
+  {
+    "name": "t:schema.custom_html.name",
+    "settings": [
+      {
+        "id": "head_html",
+        "type": "html",
+        "label": "t:schema.custom_html.settings.head_html.label",
+        "info": "t:schema.custom_html.settings.head_html.info",
+        "rows": 10,
+        "placeholder": "t:schema.custom_html.settings.head_html.placeholder"
+      }
+    ]
+  }
+]

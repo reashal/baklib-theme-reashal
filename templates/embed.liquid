@@ -1,0 +1,55 @@
+{% layout false %}
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>动态｜睿屿青衫</title>
+  <style>
+    html,body{margin:0;padding:0;width:100%;height:100%;overflow:auto}
+    body{background-color:#fff;font-family:"HM";padding:20px}
+    .dark body{background-color:rgb(17,24,38)}
+  </style>
+  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag }}
+  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag }}
+  {{ 'stylesheets/reashal-moments.css' | asset_url | stylesheet_tag }}
+  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag }}
+</head>
+<body>
+  <section class="moments">
+    {% for moment in site.pages reversed %}{% if moment.settings.date != blank %}
+      {% assign moment_id = moment.slug | default: moment.hashid %}
+      <article class="moment" id="{{ moment_id }}">
+        <header class="moment-author">
+          <figure class="author-avatar"><img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" /></figure>
+          <div class="author-info">
+            <span class="author-name">睿屿青衫</span>
+            <time class="author-date">{{ moment.settings.date }}</time>
+          </div>
+        </header>
+        {% if moment.content != blank %}<section class="moment-content">{{ moment.content }}</section>{% endif %}
+        {% if moment.settings.images != blank %}
+          {% assign img_lines = moment.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
+          <section class="moment-images">
+            {% for img_line in img_lines %}{% assign p = img_line | split: "|" %}<img src="{{ p[0] | strip | asset_url }}" alt="{{ p[1] | strip }}" loading="lazy" />{% endfor %}
+          </section>
+        {% endif %}
+        {% if moment.settings.location != blank %}<div class="moment-location"><code>{{ moment.settings.location }}</code></div>{% endif %}
+      </article>
+    {% endif %}{% endfor %}
+    <footer class="moments-footer"><p class="end-tip">故事暂且讲到这里</p></footer>
+  </section>
+  <script>
+    (function(){var h=new Date().getHours();if(h>20||h<6||window.matchMedia("(prefers-color-scheme:dark)").matches)document.documentElement.classList.add("dark");})();
+  </script>
+</body>
+</html>
+
+{% schema %}
+  {
+    "name": "嵌入版动态",
+    "description": "用于 iframe 嵌入的简化动态页",
+    "settings": []
+  }
+{% endschema %}

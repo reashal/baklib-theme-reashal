@@ -1,0 +1,162 @@
+
+
+{% assign is_moment = false %}
+{% assign _path_parts = page.path | split: "/" %}
+{% if _path_parts.size == 2 and _path_parts[1] != "" and page.settings.date != blank and page.settings.description == blank %}
+  {% assign is_moment = true %}
+{% endif %}
+{% assign is_section = false %}
+{% if page.path == "/docs" %}
+  {% assign is_section = true %}
+{% endif %}
+{% if page.path == "/showcase" %}
+  {% assign is_section = true %}
+{% endif %}
+
+{% if is_section %}
+  {% comment %}--- Article listing mode (category, via site.pages) ---{% endcomment %}
+  {% assign prefix = page.path | append: "/" %}
+  <article class="article-container docs" id="docs-container">
+    {% assign found = false %}
+    {% assign sorted = site.pages | order_by: '-created_at' %}
+    {% for item in sorted %}
+      {% if item.path != page.path and item.path contains prefix and item.settings.pinned %}
+        {% assign found = true %}
+        <div class="docs-body docs-fixed">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% for item in sorted %}
+      {% if item.path != page.path and item.path contains prefix and item.settings.pinned == blank %}
+        {% assign found = true %}
+        <div class="docs-body">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% unless found %}
+      <div class="docs-body"><p class="docs-p">暂无文章</p></div>
+    {% endunless %}
+    {% render 'article_list_tail' %}
+  </article>
+{% elsif page.children.size > 0 %}
+  {% comment %}--- Article listing mode (via page.children) ---{% endcomment %}
+  {% assign sorted = page.children | sort: "published_at" | reverse %}
+  <article class="article-container docs" id="docs-container">
+    {% for item in sorted %}
+      {% if item.settings.pinned %}
+        <div class="docs-body docs-fixed">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% for item in sorted %}
+      {% if item.settings.pinned == blank %}
+        <div class="docs-body">
+          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+          <p class="docs-p">{{ item.settings.description }}</p>
+          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% render 'article_list_tail' %}
+  </article>
+{% elsif is_moment %}
+  {% comment %}--- Moment detail mode ---{% endcomment %}
+  {% assign moment_id = page.slug | default: page.hashid %}
+  <article class="article-container">
+    <section class="moments">
+      <article class="moment" id="{{ moment_id }}">
+        <header class="moment-author">
+          <figure class="author-avatar"><img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" /></figure>
+          <div class="author-info">
+            <span class="author-name">睿屿青衫</span>
+            <time class="author-date" datetime="{{ page.settings.date }}">{{ page.settings.date }}</time>
+          </div>
+        </header>
+        {% assign moment_content = page.settings.content | default: page.content %}
+        {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+        {% if moment_content != blank %}<section class="moment-content">{{ moment_content }}</section>{% endif %}
+        {% if page.settings.images != blank %}
+          {% assign img_lines = page.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
+          <section class="moment-images">
+            {% for img_line in img_lines %}{% assign p = img_line | split: "|" %}<img src="{{ p[0] | strip | asset_url }}" alt="{{ p[1] | strip }}" loading="lazy" decoding="async" />{% endfor %}
+          </section>
+        {% endif %}
+        {% if page.settings.location != blank %}<div class="moment-location"><p><code>{{ page.settings.location }}</code></p></div>{% endif %}
+        {% if page.settings.stars != blank or page.settings.comments != blank %}
+          <section class="moment-interaction">
+            {% if page.settings.stars != blank %}
+              {% assign star_list = page.settings.stars | split: "," %}
+              <div class="interaction-stars">{% for star in star_list %}<span class="star-item">{{ star | strip }}</span>{% endfor %}</div>
+            {% endif %}
+            {% if page.settings.comments != blank %}
+              {% assign comment_list = page.settings.comments | newline_to_br | strip_newlines | split: "<br />" %}
+              <div class="interaction-comments">
+                {% for comment in comment_list %}{% assign c = comment | strip %}{% if c != blank %}<p class="comment-item"><span class="comment-author">睿屿青衫:</span><span class="comment-text">{{ c }}</span></p>{% endif %}{% endfor %}
+              </div>
+            {% endif %}
+          </section>
+        {% endif %}
+      </article>
+      <footer class="moments-footer"><p class="end-tip">故事暂且讲到这里</p></footer>
+    </section>
+  </article>
+{% else %}
+  {% comment %}--- Standard article detail mode ---{% endcomment %}
+  <article class="article-container doc">
+    <h1>{{ page.settings.title | default: page.link_text }}</h1>
+    {% assign doc_content = page.settings.content | default: page.content %}
+    {% assign doc_content = doc_content | replace: '/images/docs/', 'https://www.reashal.com/images/docs/' | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
+    {{ doc_content }}
+    {% assign article_tags = page.settings.tags | default: page.tags %}
+    {% if article_tags != blank %}
+      <section class="article-tags">
+        {% for tag in article_tags %}
+          <span class="tag">{{ tag.name }}</span>
+        {% endfor %}
+      </section>
+    {% elsif page.seo_keywords != blank %}
+      {% assign kw_tags = page.seo_keywords | split: ", " %}
+      <section class="article-tags">
+        {% for kw in kw_tags %}
+          <span class="tag">{{ kw }}</span>
+        {% endfor %}
+      </section>
+    {% endif %}
+    <section class="article-copy">
+      <div>本文作者：<a href="https://www.reashal.com{{ page.path }}" target="_blank">睿屿青衫</a></div>
+      <div>本文来源：<a href="https://www.reashal.com{{ page.path }}" target="_blank">https://www.reashal.com{{ page.path }}</a></div>
+      <div class="article-copy-info">许可协议：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank">CC BY-NC-SA 4.0</a></div>
+      <div class="article-copy-info">本站随笔均为原创，涉及隐私且时效性较强，不允许任何人以任何形式转载。</div>
+      <div class="article-copy-info">本站笔记多对原始作品作出修改，允许非商业用途转载，转载时请注明出处。</div>
+    </section>
+    {% render 'giscus' %}
+  </article>
+{% endif %}
+
+{% schema %}
+  {
+    "name": "页面",
+    "description": "标准页面（自动判断列表/详情/动态模式）",
+    "settings": [
+      { "id": "title", "type": "text", "label": "页面标题" },
+      { "id": "pinned", "type": "checkbox", "label": "置顶文章", "default": false, "info": "开启后该文章将在列表最前显示" },
+      { "id": "description", "type": "textarea", "label": "页面描述" },
+      { "id": "date", "type": "text", "label": "发表日期", "queryable": true },
+      { "id": "images", "type": "textarea", "label": "动态图片（每行：URL|alt）" },
+      { "id": "location", "type": "text", "label": "动态位置" },
+      { "id": "stars", "type": "text", "label": "动态点赞（逗号分隔）" },
+      { "id": "comments", "type": "textarea", "label": "动态评论（每行一条）" },
+      { "id": "content", "type": "richtext", "label": "正文内容" },
+      { "id": "tags", "type": "tag_picker", "multiple": true, "label": "标签" }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,34 @@
+{
+  "theme_label": "Reashal Theme",
+  "theme_description": "Personal blog theme by reashal",
+  "templates": {
+    "index": { "description": "Moments timeline" },
+    "page": { "current_version": "Current" }
+  },
+  "paginate": {
+    "nav_label": "Pagination",
+    "showing": "Showing",
+    "total": "total",
+    "records": "records",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "generic": {
+    "empty": "No content yet",
+    "home": "Home",
+    "breadcrumb_nav": "Breadcrumb",
+    "placeholders": { "search": "Search" }
+  },
+  "schema": {
+    "custom_html": {
+      "name": "Custom HTML",
+      "settings": {
+        "head_html": {
+          "label": "Head HTML",
+          "info": "Custom HTML inserted before &lt;/head&gt;",
+          "placeholder": "<!-- analytics -->"
+        }
+      }
+    }
+  }
+}
