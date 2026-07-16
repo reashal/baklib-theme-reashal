@@ -788,5 +788,3 @@ lucide/dist/esm/lucide.mjs:
   document.addEventListener('turbo:load', renderShowcase);
   document.addEventListener('turbolinks:load', renderShowcase);
 })();
-
-
