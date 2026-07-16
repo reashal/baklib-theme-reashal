@@ -1,0 +1,23 @@
+{%- assign asset_path = path | strip -%}
+{%- assign cdn_base = site.settings.asset_cdn_url | strip -%}
+{%- assign cdn_last_char = cdn_base | slice: -1, 1 -%}
+{%- if cdn_last_char == '/' -%}
+  {%- assign cdn_length = cdn_base | size | minus: 1 -%}
+  {%- assign cdn_base = cdn_base | slice: 0, cdn_length -%}
+{%- endif -%}
+{%- assign cdn_base_size = cdn_base | size -%}
+{%- assign first_char = asset_path | slice: 0, 1 -%}
+{%- assign first_two = asset_path | slice: 0, 2 -%}
+{%- assign first_five = asset_path | slice: 0, 5 -%}
+{%- assign asset_path_size = asset_path | size -%}
+{%- if asset_path_size == 0 -%}
+{%- elsif asset_path contains '://' or first_two == '//' or first_five == 'data:' or first_five == 'blob:' -%}
+  {{- asset_path -}}
+{%- else -%}
+  {%- if first_char == '/' -%}{%- assign asset_path = asset_path | remove_first: '/' -%}{%- endif -%}
+  {%- if cdn_base_size > 0 -%}
+    {{- cdn_base -}}/{{- asset_path -}}
+  {%- else -%}
+    {{- asset_path | asset_url -}}
+  {%- endif -%}
+{%- endif -%}

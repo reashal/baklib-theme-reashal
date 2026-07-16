@@ -1,0 +1,45 @@
+<script>
+  (function() {
+    var theme = null;
+    try {
+      var saved = localStorage.getItem('theme');
+      var savedAt = parseInt(localStorage.getItem('themeTs') || '0', 10);
+      if (saved && Date.now() - savedAt < 21600000) theme = saved;
+    } catch (error) {}
+    if (!theme) {
+      var hour = new Date().getHours();
+      theme = hour > 20 || hour < 6 || window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+
+<style>
+  @font-face {
+    font-family: "HM";
+    src: url("{% render 'cdn_asset_url', path: 'fonts/HarmonyOS_Sans_Medium.ttf' %}") format("truetype");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "iconfont";
+    src: url("{% render 'cdn_asset_url', path: 'fonts/iconfont.woff2' %}") format("woff2"),
+      url("{% render 'cdn_asset_url', path: 'fonts/iconfont.woff' %}") format("woff"),
+      url("{% render 'cdn_asset_url', path: 'fonts/iconfont.ttf' %}") format("truetype");
+    font-display: swap;
+  }
+</style>
+
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/application.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-base.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-aside.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/iconfont.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-moments.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-md.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-docs.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-showcase.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-share.css' %}" data-turbo-track="reload">
+<link rel="stylesheet" href="{% render 'cdn_asset_url', path: 'stylesheets/reashal-tags.css' %}" data-turbo-track="reload">
+
+<script src="{% render 'cdn_asset_url', path: 'javascripts/application.js' %}" defer data-turbo-track="reload"></script>
+<script src="{% render 'cdn_asset_url', path: 'javascripts/theme.js' %}" defer data-turbo-track="reload"></script>

@@ -31,13 +31,6 @@ body {
     background-color: rgb(17, 24, 38);
 }
 
-/* === 字体定义 === */
-
-@font-face {
-    font-family: "HM";
-    src: url('../fonts/HarmonyOS_Sans_Medium.ttf');
-}
-
 /* === 通用元素样式 === */
 
 /* 链接 */

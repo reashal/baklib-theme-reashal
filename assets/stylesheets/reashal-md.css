@@ -44,7 +44,7 @@
 .doc h2 {
     border-left: 20px solid #ff6100;
     font-size: 1.6rem;
-    color: #007175 !important;
+    color: #007175;
     font-weight: bold;
     counter-increment: h2-counter;
 }
@@ -125,13 +125,15 @@
 
 /* 段落 */
 .doc p,
+.doc div[bke-role="paragraph"],
 .doc blockquote p {
     margin: .8rem 0;
     overflow-wrap: break-word;
     line-height: 1.6;
 }
 
-.dark .article-container p {
+.dark .article-container p,
+.dark .article-container div[bke-role="paragraph"] {
     color: #dcebf2;
 }
 
@@ -209,6 +211,7 @@
 }
 
 .doc > p code,
+.doc > div[bke-role="paragraph"] code,
 .doc blockquote p code {
     background-color: #9ea4b8;
     color: #dcebf2;
@@ -216,6 +219,7 @@
 }
 
 .dark .doc > p code,
+.dark .doc > div[bke-role="paragraph"] code,
 .dark .doc blockquote p code {
     color: #dcebf2;
     background-color: rgb(59, 62, 67);
@@ -227,6 +231,14 @@
 .doc ol {
     margin-left: 1.2rem;
     line-height: 1.6;
+}
+
+.doc ul {
+    list-style: disc;
+}
+
+.doc ol {
+    list-style: decimal;
 }
 
 .doc li {
@@ -306,7 +318,8 @@
 }
 
 /* 段落缩进 */
-.article-container.doc > p {
+.article-container.doc > p,
+.article-container.doc > div[bke-role="paragraph"] {
     text-indent: 2em;
 }
 

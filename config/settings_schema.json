@@ -10,7 +10,7 @@
     "theme_author": "reashal",
     "theme_documentation_url": "https://github.com/reashal",
     "theme_support_url": "https://github.com/reashal",
-    "theme_thumb_url": "images/thumbnail.png",
+    "theme_thumb_url": "images/wallpaper.jpg",
     "theme_preview_images": ["images/wallpaper.webp", "images/reashal.svg"],
     "theme_languages": [
       { "name": "中文简体", "value": "zh-CN" },
@@ -49,6 +49,19 @@
         "label": "导航链接",
         "info": "每行一个，格式：标题|路径|icon类名（如 icon-Home）。内链自动高亮激活态，外链(http开头)新标签打开。",
         "default": "动态|/|icon-Home\n随笔|/docs|icon-pencil\n展示|/showcase/stuff|icon-pc\n仓库|https://github.com/reashal|icon-github\n游弋|https://uuuu.ee|icon-planet"
+      }
+    ]
+  },
+  {
+    "name": "静态资源 CDN",
+    "settings": [
+      {
+        "id": "asset_cdn_url",
+        "type": "text",
+        "label": "CDN 根路径",
+        "info": "填写指向主题 assets 目录的地址，不要以 / 结尾。留空时，每个资源将使用 Baklib asset_url 生成本地主题地址。",
+        "default": "https://cdn.jsdelivr.net/gh/reashal/baklib-theme-reashal@v0.9.0/assets",
+        "placeholder": "https://cdn.example.com/theme/assets"
       }
     ]
   },

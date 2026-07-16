@@ -1,0 +1,62 @@
+{%- assign rewritten_content = content -%}
+{%- if group == 'showcase' -%}
+  {%- capture local_asset_paths -%}images/showcase/stuff/FreeClip2.png
+images/showcase/stuff/LEGION.png
+images/showcase/stuff/Macmini.png
+images/showcase/stuff/Mate40.png
+images/showcase/stuff/Mate70RS.png
+images/showcase/stuff/P30.png
+images/showcase/stuff/X100.png{%- endcapture -%}
+{%- else -%}
+  {%- capture local_asset_paths -%}images/23th.jpg
+images/Archived/Cadillac.jpg
+images/Archived/Spring.jpg
+images/YSMC/1.jpg
+images/YSMC/2.jpg
+images/YSMC/3.jpg
+images/comments/Cadillac.jpg
+images/comments/CodersDay.jpg
+images/comments/Mate40.jpg
+images/comments/N1.jpg
+images/comments/Spring.jpg
+images/comments/icp.jpg
+images/comments/moon-cake.jpg
+images/comments/sail.jpg
+images/comments/smallCity.jpg
+images/docs/PSBOW/display-wecom.jpg
+images/docs/PSBOW/flow-mail.png
+images/docs/PSBOW/flow-push.png
+images/docs/PSBOW/setting-wecom1.png
+images/docs/PSBOW/setting-wecom2.png
+images/docs/PSBOW/setting-wecom3.png
+images/docs/PSBOW/struct-display.png
+images/docs/PSBOW/struct-mail.png
+images/docs/PSBOW/struct-rss.png
+images/docs/PSBOW/struct-system.png
+images/docs/UPYUN/bak-domains.png
+images/docs/UPYUN/bak-domains2.png
+images/docs/UPYUN/upyun-logo.png{%- endcapture -%}
+{%- endif -%}
+{%- assign asset_paths = local_asset_paths | newline_to_br | strip_newlines | split: '<br />' -%}
+{%- for raw_path in asset_paths -%}
+  {%- assign asset_path = raw_path | strip -%}
+  {%- if asset_path != blank -%}
+    {%- capture resolved_url -%}{%- render 'cdn_asset_url', path: asset_path -%}{%- endcapture -%}
+    {%- assign resolved_url = resolved_url | strip -%}
+    {%- if format == 'json' -%}
+      {%- capture source_with_slash -%}"/{{ asset_path }}"{%- endcapture -%}
+      {%- capture source_without_slash -%}"{{ asset_path }}"{%- endcapture -%}
+      {%- capture replacement -%}"{{ resolved_url }}"{%- endcapture -%}
+      {%- assign rewritten_content = rewritten_content | replace: source_with_slash, replacement | replace: source_without_slash, replacement -%}
+    {%- else -%}
+      {%- capture double_with_slash -%}src="/{{ asset_path }}"{%- endcapture -%}
+      {%- capture double_without_slash -%}src="{{ asset_path }}"{%- endcapture -%}
+      {%- capture single_with_slash -%}src='/{{ asset_path }}'{%- endcapture -%}
+      {%- capture single_without_slash -%}src='{{ asset_path }}'{%- endcapture -%}
+      {%- capture double_replacement -%}src="{{ resolved_url }}"{%- endcapture -%}
+      {%- capture single_replacement -%}src='{{ resolved_url }}'{%- endcapture -%}
+      {%- assign rewritten_content = rewritten_content | replace: double_with_slash, double_replacement | replace: double_without_slash, double_replacement | replace: single_with_slash, single_replacement | replace: single_without_slash, single_replacement -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{{- rewritten_content -}}

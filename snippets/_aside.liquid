@@ -1,9 +1,10 @@
 {% assign current_path = page.path %}
+{% capture author_avatar_url %}{% render 'cdn_asset_url', path: 'images/reashal.svg' %}{% endcapture %}
 
 <aside>
   <section class="aside-body">
     <section class="aside-author-card">
-      <img class="author-avatar" src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" title="睿屿青衫" loading="lazy" decoding="async" />
+      <img class="author-avatar" src="{{ author_avatar_url | strip }}" alt="睿屿青衫" title="睿屿青衫" loading="lazy" decoding="async" />
       <div class="author-info">
         <h3 class="author-name">睿屿青衫</h3>
         <p class="author-desc">希望我们能在前行的路上久别重逢</p>
@@ -24,22 +25,25 @@
         {% assign link_label = parts[0] | strip %}
         {% assign link_href = parts[1] | strip %}
         {% assign link_icon = parts[2] | strip %}
-          {% assign url_parts = link_href | split: "//" %}
-          {% if url_parts.size > 1 %}
-            {% assign is_external = true %}
-          {% else %}
-            {% assign is_external = false %}
+        {% assign url_parts = link_href | split: "//" %}
+        {% if url_parts.size > 1 %}
+          {% assign is_external = true %}
+        {% else %}
+          {% assign is_external = false %}
+        {% endif %}
+        {% assign is_active = false %}
+        {% if link_href == '/' %}
+          {% if current_path == '/' or current_path == '' %}
+            {% assign is_active = true %}
           {% endif %}
-          {% if link_href == '/' %}
-            {% assign is_active = current_path == '/' or current_path == '' %}
-          {% elsif link_href contains '/showcase/' %}
-            {% assign is_active = current_path contains '/showcase/' %}
-          {% elsif is_external %}
-            {% assign is_active = false %}
-          {% else %}
-            {% assign is_active = current_path != '/' and current_path contains link_href %}
+        {% elsif link_href contains '/showcase/' %}
+          {% if current_path contains '/showcase/' %}
+            {% assign is_active = true %}
           {% endif %}
-          <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_active %} class="active"{% endif %}>
+        {% elsif is_external == false and current_path != '/' and current_path contains link_href %}
+          {% assign is_active = true %}
+        {% endif %}
+        <a href="{{ link_href }}"{% if is_external %} target="_blank" rel="noopener noreferrer"{% endif %}{% if is_active %} class="active"{% endif %}>
           {% if link_icon != blank %}<i class="iconfont {{ link_icon }}"></i> {% endif %}{{ link_label }}
         </a>
       {% endfor %}
@@ -51,9 +55,10 @@
 
     <section class="aside-tags-card">
       <div class="card-stack" id="card-stack">
+        {% assign tag_pages = site.pages | where: 'template_name', 'page' %}
         {% for tag in site.tags %}
           {% assign tag_count = 0 %}
-          {% for p in site.pages | where: 'template_name', 'page' %}
+          {% for p in tag_pages %}
             {% if p.seo_keywords contains tag.name %}
               {% assign tag_count = tag_count | plus: 1 %}
             {% endif %}
@@ -69,179 +74,10 @@
     </section>
 
     <section class="aside-copyright-card">
-      <div>Powered By <a href="https://www.baklib.com" class="copy-a" target="_blank">Baklib</a></div>
+      <div>Powered By <a href="https://www.baklib.com" class="copy-a" target="_blank" rel="noopener noreferrer">Baklib</a></div>
       <div>Themed By <a href="https://www.reashal.com/about" class="copy-a">reashal</a></div>
     </section>
   </section>
   <div class="aside-toggle-btn" onclick="clickAsideBtn()"></div>
 </aside>
 
-<script>
-  (function() {
-    var asideShareBtn = document.getElementById('aside-share-btn');
-    if (asideShareBtn) {
-      asideShareBtn.addEventListener('click', function() {
-        if (typeof clickAsideBtn === 'function') clickAsideBtn();
-        setTimeout(function() {
-          var shareBtn = document.getElementById('share-btn');
-          if (shareBtn) shareBtn.click();
-        }, 300);
-      });
-    }
-  })();
-
-  (function() {
-    var stack = document.getElementById('card-stack');
-    var footer = document.getElementById('stack-footer');
-    if (!stack) return;
-
-    var cards = Array.from(stack.querySelectorAll('.message-card'));
-    var total = cards.length;
-    if (total === 0) return;
-
-    var VISIBLE = 3;
-    var PEEK = 10;
-    var DURATION = 350;
-    var isAnimating = false;
-    var touchStartY = 0;
-    var currentIndex = 0;
-
-    function layoutCards(animate) {
-      cards.forEach(function(card, i) {
-        var y = i * PEEK;
-        card.style.transition = animate ? 'transform 0.3s ease, opacity 0.3s ease' : 'none';
-        card.style.display = '';
-        card.style.pointerEvents = 'none';
-        if (i < VISIBLE) {
-          card.style.transform = 'translateY(' + y + 'px)';
-          card.style.zIndex = VISIBLE - i;
-          card.style.opacity = 1;
-          if (i === 0) card.style.pointerEvents = 'auto';
-        } else {
-          card.style.transform = 'translateY(' + y + 'px)';
-          card.style.zIndex = 0;
-          card.style.opacity = 0;
-        }
-      });
-      footer.textContent = ((currentIndex % total) + 1) + ' / ' + total;
-    }
-
-    function dismissTop() {
-      if (isAnimating || total <= 1) return;
-      isAnimating = true;
-
-      var top = cards[0];
-      top.style.transition = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + (DURATION * 0.85) + 'ms ease';
-      top.style.transform = 'translateY(-80px)';
-      top.style.opacity = '0';
-      top.style.zIndex = '999';
-
-      var second = cards[1];
-      var third = cards[2];
-      if (second) {
-        second.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        second.style.transform = 'translateY(0)';
-      }
-      if (third) {
-        third.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        third.style.transform = 'translateY(' + PEEK + 'px)';
-      }
-
-      setTimeout(function() {
-        stack.appendChild(top);
-        cards = Array.from(stack.querySelectorAll('.message-card'));
-        currentIndex = (currentIndex + 1) % total;
-
-        top.style.transition = 'none';
-        var lastIdx = cards.length - 1;
-        top.style.transform = 'translateY(' + (lastIdx * PEEK) + 'px)';
-        top.style.opacity = '0';
-        top.style.zIndex = '0';
-        top.style.pointerEvents = 'none';
-
-        void top.offsetHeight;
-        layoutCards(true);
-
-        setTimeout(function() {
-          cards.forEach(function(c) { c.style.transition = ''; });
-          isAnimating = false;
-        }, DURATION);
-      }, DURATION);
-    }
-
-    function restoreTop() {
-      if (isAnimating || total <= 1) return;
-      isAnimating = true;
-
-      var last = cards[cards.length - 1];
-      var first = cards[0];
-      var second = cards[1];
-
-      if (first) {
-        first.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        first.style.transform = 'translateY(' + PEEK + 'px)';
-      }
-      if (second) {
-        second.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        second.style.transform = 'translateY(' + (2 * PEEK) + 'px)';
-      }
-
-      var restoreY = cards.length * PEEK;
-      last.style.transition = 'none';
-      last.style.display = '';
-      last.style.transform = 'translateY(' + restoreY + 'px)';
-      last.style.opacity = '0.5';
-      last.style.zIndex = '999';
-      last.style.pointerEvents = 'none';
-
-      void last.offsetHeight;
-
-      last.style.transition = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + (DURATION * 0.85) + 'ms ease';
-      last.style.transform = 'translateY(0)';
-      last.style.opacity = '1';
-
-      setTimeout(function() {
-        stack.insertBefore(last, stack.firstChild);
-        cards = Array.from(stack.querySelectorAll('.message-card'));
-        currentIndex = (currentIndex - 1 + total) % total;
-
-        last.style.transition = 'none';
-        var lastIdx = cards.length - 1;
-        last.style.transform = 'translateY(' + (lastIdx * PEEK) + 'px)';
-        last.style.opacity = '0';
-        last.style.zIndex = '0';
-
-        void last.offsetHeight;
-        layoutCards(true);
-
-        setTimeout(function() {
-          cards.forEach(function(c) { c.style.transition = ''; });
-          isAnimating = false;
-        }, DURATION);
-      }, DURATION);
-    }
-
-    stack.addEventListener('wheel', function(e) {
-      e.preventDefault();
-      if (e.deltaY > 0) dismissTop();
-      else restoreTop();
-    }, { passive: false });
-
-    stack.addEventListener('touchstart', function(e) {
-      touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    stack.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-    }, { passive: false });
-
-    stack.addEventListener('touchend', function(e) {
-      var dy = e.changedTouches[0].clientY - touchStartY;
-      if (dy < -20) dismissTop();
-      else if (dy > 20) restoreTop();
-    }, { passive: true });
-
-    layoutCards(false);
-    setTimeout(function() { cards.forEach(function(c) { c.style.transition = ''; }); }, 50);
-  })();
-</script>

@@ -13,34 +13,3 @@
   .dark .moon { fill:#dcebf2; }
 </style>
 
-<script>
-  (function() {
-    var MANUAL_TTL = 6 * 60 * 60 * 1000;
-    var manualTheme = (function() {
-      var saved = localStorage.getItem("theme");
-      var ts = parseInt(localStorage.getItem("themeTs") || "0", 10);
-      if (saved && Date.now() - ts < MANUAL_TTL) return saved;
-      localStorage.removeItem("theme");
-      localStorage.removeItem("themeTs");
-      return null;
-    })();
-    var theme = manualTheme || (function() {
-      var h = new Date().getHours();
-      if (h > 20 || h < 6) return "dark";
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
-      return "light";
-    })();
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-    }
-    document.getElementById("themeToggle").addEventListener("click", function() {
-      var el = document.documentElement;
-      el.classList.toggle("dark");
-      var isDark = el.classList.contains("dark");
-      el.setAttribute("data-theme", isDark ? "dark" : "light");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      localStorage.setItem("themeTs", String(Date.now()));
-    });
-  })();
-</script>

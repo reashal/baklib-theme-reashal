@@ -7,10 +7,10 @@
   <meta name="description" content="抱歉，您访问的页面不存在">
   {% meta_tags %}
   {% render 'theme_runtime_colors' %}
-  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
-  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
-  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {% render 'theme_head_assets' %}
+  {% capture wallpaper_url %}{% render 'cdn_asset_url', path: 'images/wallpaper.webp' %}{% endcapture %}
   <style>
+    :root { --wallpaper: url({{ wallpaper_url | strip }}); }
     .not-found-container { display:flex; align-items:center; justify-content:center; padding:1rem; flex:1; }
     .not-found-content { text-align:center; max-width:500px; width:100%; padding:2rem 0.5rem; }
     .not-found-number { font-size:5rem; font-weight:700; margin:0; background:linear-gradient(45deg,#007175,#82d8dd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; animation:float 3s ease-in-out infinite; }
@@ -55,6 +55,6 @@
       </div>
     </section>
   </main>
-  {{ 'javascripts/aside.js' | asset_url | script_tag }}
+  {% render 'share' %}
 </body>
 </html>

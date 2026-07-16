@@ -6,18 +6,11 @@ pages:
 
   children:
     - name: "随笔"
-      slug: "life"
-      template_name: "category"
+      slug: "docs"
+      template_name: "page"
       settings:
         title: "随笔"
         description: "希望我的文字不止可以与自己共鸣"
-
-    - name: "笔记"
-      slug: "docs"
-      template_name: "category"
-      settings:
-        title: "笔记"
-        description: "积跬步以至千里"
 
     - name: "展示"
       slug: "showcase"

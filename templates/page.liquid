@@ -2,7 +2,8 @@
 
 {% assign is_moment = false %}
 {% assign _path_parts = page.path | split: "/" %}
-{% if _path_parts.size == 2 and _path_parts[1] != "" and page.settings.date != blank and page.settings.description == blank %}
+{% assign moment_slug_prefix = page.slug | slice: 0, 2 %}
+{% if _path_parts.size == 2 and moment_slug_prefix == 'm-' and page.settings.date != blank %}
   {% assign is_moment = true %}
 {% endif %}
 {% assign is_section = false %}
@@ -30,13 +31,15 @@
       {% endif %}
     {% endfor %}
     {% for item in sorted %}
-      {% if item.path != page.path and item.path contains prefix and item.settings.pinned == blank %}
-        {% assign found = true %}
-        <div class="docs-body">
-          <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
-          <p class="docs-p">{{ item.settings.description }}</p>
-          <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
-        </div>
+      {% if item.path != page.path and item.path contains prefix %}
+        {% unless item.settings.pinned %}
+          {% assign found = true %}
+          <div class="docs-body">
+            <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
+            <p class="docs-p">{{ item.settings.description }}</p>
+            <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
+          </div>
+        {% endunless %}
       {% endif %}
     {% endfor %}
     {% unless found %}
@@ -58,64 +61,32 @@
       {% endif %}
     {% endfor %}
     {% for item in sorted %}
-      {% if item.settings.pinned == blank %}
+      {% unless item.settings.pinned %}
         <div class="docs-body">
           <a href="{{ item.path }}" class="docs-a"><h2 class="docs-h">{{ item.link_text }}</h2></a>
           <p class="docs-p">{{ item.settings.description }}</p>
           <time class="docs-t">{{ item.seo_description | default: item.settings.date }}</time>
         </div>
-      {% endif %}
+      {% endunless %}
     {% endfor %}
     {% render 'article_list_tail' %}
   </article>
 {% elsif is_moment %}
-  {% comment %}--- Moment detail mode ---{% endcomment %}
-  {% assign moment_id = page.slug | default: page.hashid %}
-  <article class="article-container">
-    <section class="moments">
-      <article class="moment" id="{{ moment_id }}">
-        <header class="moment-author">
-          <figure class="author-avatar"><img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" /></figure>
-          <div class="author-info">
-            <span class="author-name">睿屿青衫</span>
-            <time class="author-date" datetime="{{ page.settings.date }}">{{ page.settings.date }}</time>
-          </div>
-        </header>
-        {% assign moment_content = page.settings.content | default: page.content %}
-        {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
-        {% if moment_content != blank %}<section class="moment-content">{{ moment_content }}</section>{% endif %}
-        {% if page.settings.images != blank %}
-          {% assign img_lines = page.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-          <section class="moment-images">
-            {% for img_line in img_lines %}{% assign p = img_line | split: "|" %}<img src="{{ p[0] | strip | asset_url }}" alt="{{ p[1] | strip }}" loading="lazy" decoding="async" />{% endfor %}
-          </section>
-        {% endif %}
-        {% if page.settings.location != blank %}<div class="moment-location"><p><code>{{ page.settings.location }}</code></p></div>{% endif %}
-        {% if page.settings.stars != blank or page.settings.comments != blank %}
-          <section class="moment-interaction">
-            {% if page.settings.stars != blank %}
-              {% assign star_list = page.settings.stars | split: "," %}
-              <div class="interaction-stars">{% for star in star_list %}<span class="star-item">{{ star | strip }}</span>{% endfor %}</div>
-            {% endif %}
-            {% if page.settings.comments != blank %}
-              {% assign comment_list = page.settings.comments | newline_to_br | strip_newlines | split: "<br />" %}
-              <div class="interaction-comments">
-                {% for comment in comment_list %}{% assign c = comment | strip %}{% if c != blank %}<p class="comment-item"><span class="comment-author">睿屿青衫:</span><span class="comment-text">{{ c }}</span></p>{% endif %}{% endfor %}
-              </div>
-            {% endif %}
-          </section>
-        {% endif %}
-      </article>
-      <footer class="moments-footer"><p class="end-tip">故事暂且讲到这里</p></footer>
-    </section>
+  {% comment %}--- Moment pages live on the homepage ---{% endcomment %}
+  {% assign moment_id = page.hashid | default: page.id %}
+  <article class="article-container doc">
+    <p>该动态已在首页展示，正在跳转。</p>
+    <p><a href="/#{{ moment_id }}">返回首页动态</a></p>
   </article>
+  <script>
+    window.location.replace('/#{{ moment_id }}');
+  </script>
 {% else %}
   {% comment %}--- Standard article detail mode ---{% endcomment %}
   <article class="article-container doc">
     <h1>{{ page.settings.title | default: page.link_text }}</h1>
     {% assign doc_content = page.settings.content | default: page.content %}
-    {% assign doc_content = doc_content | replace: '/images/docs/', 'https://www.reashal.com/images/docs/' | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
-    {{ doc_content }}
+    {% render 'rewrite_local_asset_urls', content: doc_content, format: 'html' %}
     {% assign article_tags = page.settings.tags | default: page.tags %}
     {% if article_tags != blank %}
       <section class="article-tags">
@@ -132,9 +103,9 @@
       </section>
     {% endif %}
     <section class="article-copy">
-      <div>本文作者：<a href="https://www.reashal.com{{ page.path }}" target="_blank">睿屿青衫</a></div>
-      <div>本文来源：<a href="https://www.reashal.com{{ page.path }}" target="_blank">https://www.reashal.com{{ page.path }}</a></div>
-      <div class="article-copy-info">许可协议：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank">CC BY-NC-SA 4.0</a></div>
+      <div>本文作者：<a href="https://www.reashal.com{{ page.path }}" target="_blank" rel="noopener noreferrer">睿屿青衫</a></div>
+      <div>本文来源：<a href="https://www.reashal.com{{ page.path }}" target="_blank" rel="noopener noreferrer">https://www.reashal.com{{ page.path }}</a></div>
+      <div class="article-copy-info">许可协议：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a></div>
       <div class="article-copy-info">本站随笔均为原创，涉及隐私且时效性较强，不允许任何人以任何形式转载。</div>
       <div class="article-copy-info">本站笔记多对原始作品作出修改，允许非商业用途转载，转载时请注明出处。</div>
     </section>

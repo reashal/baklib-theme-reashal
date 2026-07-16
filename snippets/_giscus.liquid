@@ -14,19 +14,3 @@
         crossorigin="anonymous"
         async></script>
 </section>
-<script>
-function syncGiscusTheme(){
-    var isDark=document.documentElement.classList.contains("dark");
-    var theme=isDark?"dark":"light";
-    var frame=document.querySelector("iframe.giscus-frame");
-    if(frame){frame.contentWindow.postMessage({giscus:{setConfig:{theme:theme}}},"https://giscus.app");}
-    else{var script=document.getElementById("giscus");if(script)script.setAttribute("data-theme",theme);}
-}
-syncGiscusTheme();
-window.addEventListener("message",function(e){
-    if(e.origin!=="https://giscus.app")return;
-    if(e.data&&e.data.giscus&&e.data.giscus.discussion!==undefined)syncGiscusTheme();
-});
-var toggleBtn=document.getElementById("themeToggle");
-if(toggleBtn){toggleBtn.addEventListener("click",function(){requestAnimationFrame(syncGiscusTheme);});}
-</script>

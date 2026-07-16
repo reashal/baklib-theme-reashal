@@ -1,38 +1,24 @@
-{% comment %}
-  Pagination (daisyUI). Requires paginate object from paginate_tag.
-{% endcomment %}
-{% if paginate.total_count > 0 and paginate.total_pages > 1 %}
-  <nav class="join" aria-label="{{ 'paginate.nav_label' | t }}">
-    <a
-      data-turbo-action="advance"
-      {% if paginate.prev_page %}href="{{ paginate.url_for[paginate.prev_page] }}"{% else %}aria-disabled="true" tabindex="-1"{% endif %}
-      class="btn btn-soft join-item{% unless paginate.prev_page %} btn-disabled{% endunless %}"
-    >
-      {% render 'icon', name: 'chevron-left', class: 'h-4 w-4' %}
-      <span class="sr-only">{{ 'paginate.previous' | t }}</span>
-    </a>
+{% assign p = paginate %}
+<nav class="docs-pagination" aria-label="分页导航">
+  {% if p.prev_page %}
+    <a href="{{ p.url_for[p.prev_page] }}" class="page-btn page-prev" data-turbo-action="replace">‹</a>
+  {% else %}
+    <span class="page-btn page-prev" disabled>‹</span>
+  {% endif %}
 
-    {% for i in paginate.series %}
-      {% assign type = i | typeof %}
-      {% case type %}
-        {% when 'string' %}
-          {% if i == 'gap' %}
-            <span class="btn btn-ghost join-item btn-disabled">…</span>
-          {% else %}
-            <span aria-current="page" class="btn btn-primary join-item">{{ i }}</span>
-          {% endif %}
-        {% when 'integer' %}
-          <a data-turbo-action="advance" href="{{ paginate.url_for[i] }}" class="btn btn-soft join-item">{{ i }}</a>
-      {% endcase %}
-    {% endfor %}
+  {% for part in p.series %}
+    {% if part == 'gap' %}
+      <span class="page-sep">…</span>
+    {% elsif part == p.current_page %}
+      <span class="page-btn page-active">{{ part }}</span>
+    {% else %}
+      <a href="{{ p.url_for[part] }}" class="page-btn" data-turbo-action="replace">{{ part }}</a>
+    {% endif %}
+  {% endfor %}
 
-    <a
-      data-turbo-action="advance"
-      {% if paginate.next_page %}href="{{ paginate.url_for[paginate.next_page] }}"{% else %}aria-disabled="true" tabindex="-1"{% endif %}
-      class="btn btn-soft join-item{% unless paginate.next_page %} btn-disabled{% endunless %}"
-    >
-      {% render 'icon', name: 'chevron-right', class: 'h-4 w-4' %}
-      <span class="sr-only">{{ 'paginate.next' | t }}</span>
-    </a>
-  </nav>
-{% endif %}
+  {% if p.next_page %}
+    <a href="{{ p.url_for[p.next_page] }}" class="page-btn page-next" data-turbo-action="replace">›</a>
+  {% else %}
+    <span class="page-btn page-next" disabled>›</span>
+  {% endif %}
+</nav>

@@ -1,17 +1,22 @@
 <article class="article-container">
   <section class="moments">
+    {% capture author_avatar_url %}{% render 'cdn_asset_url', path: 'images/reashal.svg' %}{% endcapture %}
     <h1>{{ site.settings.index_title | default: '动态' }}</h1>
+    {% assign home_pages = page.children | sort: 'created_at' | reverse %}
     {% assign has = false %}
-    {% for p in site.pages %}
-      {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
+    {% for p in home_pages %}
+      {% assign moment_slug_prefix = p.slug | slice: 0, 2 %}
+      {% if moment_slug_prefix == 'm-' and p.settings.date != blank %}{% assign has = true %}{% endif %}
     {% endfor %}
     {% if has %}
-      {% for p in site.pages reversed %}
-        {% if p.settings.date != blank %}
-      <article class="moment" id="{{ p.hashid | default: p.id }}">
+      {% for p in home_pages %}
+        {% assign moment_slug_prefix = p.slug | slice: 0, 2 %}
+        {% if moment_slug_prefix == 'm-' and p.settings.date != blank %}
+      {% assign moment_id = p.hashid | default: p.id %}
+      <article class="moment" id="{{ moment_id }}">
         <header class="moment-author">
           <figure class="author-avatar">
-            <img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" />
+            <img src="{{ author_avatar_url | strip }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" />
           </figure>
           <div class="author-info">
             <span class="author-name">睿屿青衫</span>
@@ -21,7 +26,6 @@
         {% assign moment_content = p.settings.content | default: p.content %}
         <section class="moment-content">
           {% if moment_content != blank %}
-            {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
             {{ moment_content }}
           {% else %}
             <a href="{{ p.full_path }}">{{ p.link_text }}</a>
@@ -29,9 +33,83 @@
         </section>
         {% if p.settings.images != blank %}
           {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-          <section class="moment-images">
-            {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" />{% endfor %}
+          {% assign image_count = 0 %}
+          {% for img_line in img_lines %}
+            {% assign img_parts = img_line | split: "|" %}
+            {% assign moment_image_path = img_parts[0] | strip %}
+            {% if moment_image_path != blank %}{% assign image_count = image_count | plus: 1 %}{% endif %}
+          {% endfor %}
+          {% if image_count > 0 %}
+          <section class="moment-images" data-moment-id="{{ moment_id }}">
+            {% assign image_index = 0 %}
+            {% if image_count == 1 %}
+            <figure class="img-single">
+              {% for img_line in img_lines %}
+                {% assign img_parts = img_line | split: "|" %}
+                {% assign moment_image_path = img_parts[0] | strip %}
+                {% if moment_image_path != blank %}
+                  {% capture moment_image_url %}{% render 'cdn_asset_url', path: moment_image_path %}{% endcapture %}
+                  <img src="{{ moment_image_url | strip }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async" data-view-index="{{ image_index }}" />
+                  {% assign image_index = image_index | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            </figure>
+            {% elsif image_count <= 4 %}
+            <figure class="img-grid img-grid-2x2">
+              {% for img_line in img_lines %}
+                {% assign img_parts = img_line | split: "|" %}
+                {% assign moment_image_path = img_parts[0] | strip %}
+                {% if moment_image_path != blank %}
+                  {% capture moment_image_url %}{% render 'cdn_asset_url', path: moment_image_path %}{% endcapture %}
+                  <img src="{{ moment_image_url | strip }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async" data-view-index="{{ image_index }}" />
+                  {% assign image_index = image_index | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            </figure>
+            {% elsif image_count <= 9 %}
+            <figure class="img-grid img-grid-3x3">
+              {% for img_line in img_lines %}
+                {% assign img_parts = img_line | split: "|" %}
+                {% assign moment_image_path = img_parts[0] | strip %}
+                {% if moment_image_path != blank %}
+                  {% capture moment_image_url %}{% render 'cdn_asset_url', path: moment_image_path %}{% endcapture %}
+                  <img src="{{ moment_image_url | strip }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async" data-view-index="{{ image_index }}" />
+                  {% assign image_index = image_index | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            </figure>
+            {% else %}
+            <figure class="img-grid img-grid-3x3">
+              {% for img_line in img_lines %}
+                {% assign img_parts = img_line | split: "|" %}
+                {% assign moment_image_path = img_parts[0] | strip %}
+                {% if moment_image_path != blank %}
+                  {% capture moment_image_url %}{% render 'cdn_asset_url', path: moment_image_path %}{% endcapture %}
+                  {% if image_index < 8 %}
+                    <img src="{{ moment_image_url | strip }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async" data-view-index="{{ image_index }}" />
+                  {% elsif image_index == 8 %}
+                    <button type="button" class="img-mask-overlay" style="background-image:url('{{ moment_image_url | strip }}')" data-view-index="8" aria-label="查看其余 {{ image_count | minus: 8 }} 张图片">
+                      <span class="img-mask-count">+{{ image_count | minus: 8 }}</span>
+                    </button>
+                  {% endif %}
+                  {% assign image_index = image_index | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            </figure>
+            {% endif %}
+
+            <div class="moment-image-sources" hidden>
+            {% for img_line in img_lines %}
+              {% assign img_parts = img_line | split: "|" %}
+              {% assign moment_image_path = img_parts[0] | strip %}
+              {% if moment_image_path != blank %}
+                {% capture moment_image_url %}{% render 'cdn_asset_url', path: moment_image_path %}{% endcapture %}
+                <span data-view-src="{{ moment_image_url | strip | escape }}" data-view-alt="{{ img_parts[1] | strip | escape }}"></span>
+              {% endif %}
+            {% endfor %}
+            </div>
           </section>
+          {% endif %}
         {% endif %}
         {% if p.settings.location != blank %}
           <div class="moment-location"><code>{{ p.settings.location }}</code></div>
@@ -67,7 +145,7 @@
     "name": "首页",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["page"],
+    "sub_page_templates": ["page", "showcase"],
     "settings": []
   }
 {% endschema %}

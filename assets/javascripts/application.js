@@ -681,6 +681,13 @@ lucide/dist/esm/lucide.mjs:
 
     var config;
     try { config = JSON.parse(dataEl.value); } catch (e) { return; }
+    var assetUrlTemplate = dataEl.getAttribute('data-asset-url-template') || '';
+    function resolveAssetUrl(value) {
+      if (!value || /^(?:https?:)?\/\//.test(value) || /^(?:data|blob):/.test(value)) return value;
+      return assetUrlTemplate
+        ? assetUrlTemplate.replace('__reashal_asset_path__', value.replace(/^\/+/, ''))
+        : value;
+    }
     root.innerHTML = '';
 
     if (config.intro) {
@@ -711,7 +718,7 @@ lucide/dist/esm/lucide.mjs:
         var mode = card.imageMode || 'text-only';
         var hasLink = card.link && card.link.trim() !== '';
         var w = document.createElement(hasLink ? 'a' : 'div');
-        if (hasLink) { w.href = card.link; w.target = '_blank'; }
+        if (hasLink) { w.href = card.link; w.target = '_blank'; w.rel = 'noopener noreferrer'; }
         w.className = 'showcase-' + mode;
 
         if (mode === 'icon-simple' || mode === 'app-card') {
@@ -720,8 +727,9 @@ lucide/dist/esm/lucide.mjs:
           avatar.setAttribute('data-initial', (card.title || '?')[0]);
           if (card.image) {
             var img = document.createElement('img');
-            img.src = card.image; img.alt = card.title;
-            img.onerror = function() { this.style.display = 'none'; avatar.classList.add('no-image'); };
+            img.src = resolveAssetUrl(card.image); img.alt = card.title;
+            img.loading = 'lazy'; img.decoding = 'async';
+            img.onerror = function() { this.style.display = 'none'; this.parentElement.classList.add('no-image'); };
             avatar.appendChild(img);
           }
           w.appendChild(avatar);
@@ -733,8 +741,9 @@ lucide/dist/esm/lucide.mjs:
           li.setAttribute('data-title', (card.title || '?')[0]);
           if (card.image) {
             var img = document.createElement('img');
-            img.src = card.image; img.alt = card.title;
-            img.onerror = function() { this.style.display = 'none'; li.classList.add('no-image'); };
+            img.src = resolveAssetUrl(card.image); img.alt = card.title;
+            img.loading = 'lazy'; img.decoding = 'async';
+            img.onerror = function() { this.style.display = 'none'; this.parentElement.classList.add('no-image'); };
             li.appendChild(img);
           }
           w.appendChild(li);
@@ -786,5 +795,4 @@ lucide/dist/esm/lucide.mjs:
 
   renderShowcase();
   document.addEventListener('turbo:load', renderShowcase);
-  document.addEventListener('turbolinks:load', renderShowcase);
 })();
