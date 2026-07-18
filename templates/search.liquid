@@ -1,21 +1,35 @@
 <article class="article-container docs" id="docs-container">
   {% assign tag_param = params.tag %}
-  {% assign q_param = params.q %}
-  {% assign tag_name = search.tag.name | default: search.tag | default: tag_param %}
-  {% assign kw = search.keywords | default: q_param %}
+  {% assign tag_name = search.tag.name | default: search.tag | default: tag_param | strip %}
+  {% assign kw = search.keywords | strip %}
 
   {% assign found = false %}
-  {% assign all_pages = site.pages | where: 'template_name', 'page' | order_by: '-created_at' %}
+  {% if tag_name != blank %}
+    {% assign all_pages = site.pages | where: 'template_name', 'page' | order_by: '-created_at' | limit: 100 %}
+  {% else %}
+    {% assign all_pages = search.pages | where: 'template_name', 'page' | limit: 100 %}
+  {% endif %}
   {% for page in all_pages %}
     {% assign match = false %}
-    {% if tag_name and page.seo_keywords != blank and page.seo_keywords contains tag_name %}
+    {% if tag_name != blank %}
+      {% for selected_tag in page.settings.tags %}
+        {% if selected_tag.name == tag_name %}
+          {% assign match = true %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      {% unless match %}
+        {% assign seo_tags = page.seo_keywords | split: ',' %}
+        {% for seo_tag in seo_tags %}
+          {% assign seo_tag_name = seo_tag | strip %}
+          {% if seo_tag_name == tag_name %}
+            {% assign match = true %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      {% endunless %}
+    {% elsif kw != blank %}
       {% assign match = true %}
-    {% elsif kw %}
-      {% assign kw_lower = kw | downcase %}
-      {% assign haystacks = page.link_text | append: ' ' | append: page.settings.title | append: ' ' | append: page.seo_keywords | append: ' ' | append: page.settings.description | downcase %}
-      {% if haystacks contains kw_lower %}
-        {% assign match = true %}
-      {% endif %}
     {% endif %}
     {% if match %}
       {% assign found = true %}
@@ -172,7 +186,10 @@
       }
 
       var resizeTimer;
-      window.addEventListener("resize", function() {
+      if (window.__searchListResizeHandler) {
+        window.removeEventListener("resize", window.__searchListResizeHandler);
+      }
+      window.__searchListResizeHandler = function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
           var prevPage = currentPage;
@@ -180,7 +197,8 @@
           checkEnoughSpace();
           showPage(Math.min(prevPage, totalPages() - 1));
         }, 150);
-      });
+      };
+      window.addEventListener("resize", window.__searchListResizeHandler);
     })();
   </script>
 </article>

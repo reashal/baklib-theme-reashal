@@ -140,7 +140,10 @@
     }
 
     var resizeTimer;
-    window.addEventListener("resize", function() {
+    if (window.__docsListResizeHandler) {
+      window.removeEventListener("resize", window.__docsListResizeHandler);
+    }
+    window.__docsListResizeHandler = function() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function() {
         var prevPage = currentPage;
@@ -148,6 +151,7 @@
         checkEnoughSpace();
         showPage(Math.min(prevPage, totalPages() - 1));
       }, 150);
-    });
+    };
+    window.addEventListener("resize", window.__docsListResizeHandler);
   })();
 </script>

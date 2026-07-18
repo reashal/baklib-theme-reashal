@@ -1,9 +1,25 @@
 {% assign current_path = page.path %}
+{% assign aside_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+{% if aside_cdn_prefix != blank %}
+  {% unless aside_cdn_prefix contains '://' %}
+    {% assign aside_cdn_prefix = 'https://' | append: aside_cdn_prefix %}
+  {% endunless %}
+  {% assign aside_cdn_last_char = aside_cdn_prefix | slice: -1, 1 %}
+  {% if aside_cdn_last_char == '/' %}
+    {% assign aside_cdn_prefix_size = aside_cdn_prefix | size | minus: 1 %}
+    {% assign aside_cdn_prefix = aside_cdn_prefix | slice: 0, aside_cdn_prefix_size %}
+  {% endif %}
+{% endif %}
+{% assign author_avatar_local_url = 'images/reashal.svg' | asset_url %}
+{% assign author_avatar_url = author_avatar_local_url %}
+{% if aside_cdn_prefix != blank %}
+  {% assign author_avatar_url = aside_cdn_prefix | append: '/images/reashal.svg' %}
+{% endif %}
 
 <aside>
   <section class="aside-body">
     <section class="aside-author-card">
-      <img class="author-avatar" src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" title="睿屿青衫" loading="lazy" decoding="async" />
+      <img class="author-avatar" src="{{ author_avatar_url }}" alt="睿屿青衫" title="睿屿青衫" loading="lazy" decoding="async"{% if aside_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ author_avatar_local_url }}';"{% endif %} />
       <div class="author-info">
         <h3 class="author-name">睿屿青衫</h3>
         <p class="author-desc">希望我们能在前行的路上久别重逢</p>
@@ -24,8 +40,7 @@
         {% assign link_label = parts[0] | strip %}
         {% assign link_href = parts[1] | strip %}
         {% assign link_icon = parts[2] | strip %}
-          {% assign url_parts = link_href | split: "//" %}
-          {% if url_parts.size > 1 %}
+          {% if link_href contains '://' %}
             {% assign is_external = true %}
           {% else %}
             {% assign is_external = false %}
@@ -39,7 +54,7 @@
           {% else %}
             {% assign is_active = current_path != '/' and current_path contains link_href %}
           {% endif %}
-          <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_active %} class="active"{% endif %}>
+          <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_external %} rel="noopener noreferrer"{% endif %}{% if is_active %} class="active"{% endif %}>
           {% if link_icon != blank %}<i class="iconfont {{ link_icon }}"></i> {% endif %}{{ link_label }}
         </a>
       {% endfor %}
@@ -51,10 +66,28 @@
 
     <section class="aside-tags-card">
       <div class="card-stack" id="card-stack">
+        {% assign tagged_pages = site.pages | where: 'template_name', 'page' | limit: 100 %}
         {% for tag in site.tags %}
           {% assign tag_count = 0 %}
-          {% for p in site.pages | where: 'template_name', 'page' %}
-            {% if p.seo_keywords contains tag.name %}
+          {% for p in tagged_pages %}
+            {% assign page_has_tag = false %}
+            {% for selected_tag in p.settings.tags %}
+              {% if selected_tag.name == tag.name %}
+                {% assign page_has_tag = true %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+            {% unless page_has_tag %}
+              {% assign seo_tags = p.seo_keywords | split: ',' %}
+              {% for seo_tag in seo_tags %}
+                {% assign seo_tag_name = seo_tag | strip %}
+                {% if seo_tag_name == tag.name %}
+                  {% assign page_has_tag = true %}
+                  {% break %}
+                {% endif %}
+              {% endfor %}
+            {% endunless %}
+            {% if page_has_tag %}
               {% assign tag_count = tag_count | plus: 1 %}
             {% endif %}
           {% endfor %}
@@ -69,7 +102,7 @@
     </section>
 
     <section class="aside-copyright-card">
-      <div>Powered By <a href="https://www.baklib.com" class="copy-a" target="_blank">Baklib</a></div>
+      <div>Powered By <a href="https://www.baklib.com" class="copy-a" target="_blank" rel="noopener noreferrer">Baklib</a></div>
       <div>Themed By <a href="https://www.reashal.com/about" class="copy-a">reashal</a></div>
     </section>
   </section>

@@ -53,6 +53,47 @@
     ]
   },
   {
+    "name": "CDN 资源设置",
+    "settings": [
+      {
+        "id": "cdn_url_prefix",
+        "type": "text",
+        "label": "CDN 资源 URL 前缀",
+        "info": "填写域名或完整 URL，例如 www.reashal.com 或 https://www.reashal.com。无需填写末尾斜杠；留空时全部使用主题本地资源。",
+        "default": ""
+      }
+    ]
+  },
+  {
+    "name": "评论设置",
+    "settings": [
+      {
+        "id": "giscus_repo",
+        "type": "text",
+        "label": "Giscus 仓库",
+        "default": "reashal/comments"
+      },
+      {
+        "id": "giscus_repo_id",
+        "type": "text",
+        "label": "Giscus 仓库 ID",
+        "default": "R_kgDOJ3Grhw"
+      },
+      {
+        "id": "giscus_category",
+        "type": "text",
+        "label": "Giscus 分类",
+        "default": "Announcements"
+      },
+      {
+        "id": "giscus_category_id",
+        "type": "text",
+        "label": "Giscus 分类 ID",
+        "default": "DIC_kwDOJ3Grh84CXprQ"
+      }
+    ]
+  },
+  {
     "name": "t:schema.custom_html.name",
     "settings": [
       {

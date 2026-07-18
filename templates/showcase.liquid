@@ -14,7 +14,7 @@
 
 <article class="article-container showcase">
   <nav class="showcase-nav">
-    {% assign sorted_sections = page.children | sort: "published_at" %}
+    {% assign sorted_sections = page.children | order_by: 'published_at' | limit: 100 %}
     {% for section in sorted_sections %}
       <a href="{{ section.path }}">
         <span>{{ section.link_text }}</span>

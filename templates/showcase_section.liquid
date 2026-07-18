@@ -13,16 +13,25 @@
 {% endschema %}
 
 {% assign current_page = page %}
-{% assign prefix = current_page.path | remove_first: current_page.slug %}
+{% assign showcase_sections = current_page.parent.children | order_by: 'published_at' | limit: 100 %}
+{% assign showcase_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+{% if showcase_cdn_prefix != blank %}
+  {% unless showcase_cdn_prefix contains '://' %}
+    {% assign showcase_cdn_prefix = 'https://' | append: showcase_cdn_prefix %}
+  {% endunless %}
+  {% assign showcase_cdn_last_char = showcase_cdn_prefix | slice: -1, 1 %}
+  {% if showcase_cdn_last_char == '/' %}
+    {% assign showcase_cdn_prefix_size = showcase_cdn_prefix | size | minus: 1 %}
+    {% assign showcase_cdn_prefix = showcase_cdn_prefix | slice: 0, showcase_cdn_prefix_size %}
+  {% endif %}
+{% endif %}
 
 <article class="article-container showcase">
   <nav class="showcase-nav">
-    {% for section in site.pages %}
-      {% if section.path contains prefix %}
-        <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
-          <span>{{ section.link_text }}</span>
-        </a>
-      {% endif %}
+    {% for section in showcase_sections %}
+      <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
+        <span>{{ section.link_text }}</span>
+      </a>
     {% endfor %}
   </nav>
 
@@ -30,5 +39,5 @@
     <h2 class="showcase-h">加载中...</h2>
   </div>
 
-  <textarea id="showcase-data" style="display:none">{{ page.settings.cards_json }}</textarea>
+  <textarea id="showcase-data" style="display:none" data-cdn-prefix="{{ showcase_cdn_prefix | escape }}">{{ page.settings.cards_json | escape }}</textarea>
 </article>

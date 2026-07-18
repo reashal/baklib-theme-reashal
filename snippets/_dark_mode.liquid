@@ -16,31 +16,41 @@
 <script>
   (function() {
     var MANUAL_TTL = 6 * 60 * 60 * 1000;
+    function getStoredValue(key) {
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    }
+    function removeStoredValue(key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    }
+    function setStoredValue(key, value) {
+      try { localStorage.setItem(key, value); } catch (e) {}
+    }
     var manualTheme = (function() {
-      var saved = localStorage.getItem("theme");
-      var ts = parseInt(localStorage.getItem("themeTs") || "0", 10);
-      if (saved && Date.now() - ts < MANUAL_TTL) return saved;
-      localStorage.removeItem("theme");
-      localStorage.removeItem("themeTs");
+      var saved = getStoredValue("theme");
+      var ts = parseInt(getStoredValue("themeTs") || "0", 10);
+      if ((saved === "dark" || saved === "light") && Date.now() - ts < MANUAL_TTL) return saved;
+      removeStoredValue("theme");
+      removeStoredValue("themeTs");
       return null;
     })();
     var theme = manualTheme || (function() {
       var h = new Date().getHours();
       if (h > 20 || h < 6) return "dark";
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
       return "light";
     })();
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.setAttribute("data-theme", "dark");
-    }
-    document.getElementById("themeToggle").addEventListener("click", function() {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+
+    var themeToggle = document.getElementById("themeToggle");
+    if (!themeToggle) return;
+    themeToggle.addEventListener("click", function() {
       var el = document.documentElement;
       el.classList.toggle("dark");
       var isDark = el.classList.contains("dark");
       el.setAttribute("data-theme", isDark ? "dark" : "light");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      localStorage.setItem("themeTs", String(Date.now()));
+      setStoredValue("theme", isDark ? "dark" : "light");
+      setStoredValue("themeTs", String(Date.now()));
     });
   })();
 </script>

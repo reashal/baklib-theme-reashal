@@ -26,12 +26,14 @@
 (function(){
   var shareBtn=document.getElementById('share-btn');
   var overlay=document.getElementById('share-overlay');
-  var shareCard=document.getElementById('share-card');
   var copyBtn=document.getElementById('copy-btn');
   var titleEl=document.getElementById('share-card-title');
   var descEl=document.getElementById('share-card-desc');
   var inputEl=document.getElementById('share-link-input');
   var currentTitle='', currentUrl='', currentDescription='';
+  if(!shareBtn||!overlay||!copyBtn||!titleEl||!descEl||!inputEl)return;
+
+  function closeShare(){overlay.classList.remove('show');}
   shareBtn.addEventListener('click',function(){
     currentUrl=window.location.href;
     currentTitle=document.title.split('｜')[0].trim();
@@ -43,11 +45,30 @@
     overlay.classList.add('show');
     generateQRCode();
   });
-  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('show');});
-  copyBtn.addEventListener('click',function(){
+  overlay.addEventListener('click',function(e){if(e.target===overlay)closeShare();});
+  if(window.__shareEscapeHandler){document.removeEventListener('keydown',window.__shareEscapeHandler);}
+  window.__shareEscapeHandler=function(e){if(e.key==='Escape')closeShare();};
+  document.addEventListener('keydown',window.__shareEscapeHandler);
+
+  function fallbackCopy(text){
+    inputEl.value=text;
+    inputEl.focus();
     inputEl.select();
+    var copied=false;
+    try{copied=document.execCommand('copy');}catch(e){copied=false;}
+    inputEl.value=currentUrl;
+    return copied;
+  }
+
+  copyBtn.addEventListener('click',function(){
     var siteName=shareBtn.getAttribute('data-site-name')||'睿屿青衫';var text='我从『'+siteName+'』为您分享了一篇文章～\n标题：'+currentTitle+'\n摘要：'+(currentDescription||'暂无摘要')+'\n链接：'+currentUrl;
-    navigator.clipboard.writeText(text).then(function(){alert('已复制到剪贴板');}).catch(function(){alert('复制失败，请手动复制链接');});
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){alert('已复制到剪贴板');}).catch(function(){
+        alert(fallbackCopy(text)?'已复制到剪贴板':'复制失败，请手动复制链接');
+      });
+    }else{
+      alert(fallbackCopy(text)?'已复制到剪贴板':'复制失败，请手动复制链接');
+    }
   });
   function generateQRCode(){
     var canvas=document.getElementById('qrcode-canvas');
@@ -67,10 +88,22 @@
     }catch(e){drawFallbackQRCode();}
   }
   function loadQRCodeLibrary(){
+    window.__qrcodeReadyCallbacks=window.__qrcodeReadyCallbacks||[];
+    window.__qrcodeReadyCallbacks.push({success:generateQRCode,failure:drawFallbackQRCode});
+    if(window.__qrcodeLibraryLoading)return;
+    window.__qrcodeLibraryLoading=true;
     var script=document.createElement('script');
     script.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
-    script.onload=function(){generateQRCode();};
-    script.onerror=function(){drawFallbackQRCode();};
+    script.onload=function(){
+      window.__qrcodeLibraryLoading=false;
+      var callbacks=window.__qrcodeReadyCallbacks.splice(0);
+      callbacks.forEach(function(callback){callback.success();});
+    };
+    script.onerror=function(){
+      window.__qrcodeLibraryLoading=false;
+      var callbacks=window.__qrcodeReadyCallbacks.splice(0);
+      callbacks.forEach(function(callback){callback.failure();});
+    };
     document.head.appendChild(script);
   }
   function drawFallbackQRCode(){

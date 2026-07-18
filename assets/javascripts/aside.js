@@ -1,22 +1,26 @@
-clickAsideBtn = function () {
-    var aside = document.getElementsByTagName('main')[0];
-    if (!aside) return;
-    var isVisible = aside.classList.contains('aside-show');
-    aside.className = isVisible ? 'aside-hide' : 'aside-show';
+function setAsideState(state) {
+    var main = document.getElementsByTagName('main')[0];
+    if (!main) return;
+    main.classList.remove('aside-init', 'aside-show', 'aside-hide');
+    main.classList.add(state);
 }
 
-hideAside = function () {
-    var aside = document.getElementsByTagName('main')[0];
-    if (!aside) return;
-    if (aside.classList.contains('aside-show')) {
-        aside.className = 'aside-hide';
+window.clickAsideBtn = function () {
+    var main = document.getElementsByTagName('main')[0];
+    if (!main) return;
+    setAsideState(main.classList.contains('aside-show') ? 'aside-hide' : 'aside-show');
+};
+
+window.hideAside = function () {
+    var main = document.getElementsByTagName('main')[0];
+    if (!main) return;
+    if (main.classList.contains('aside-show')) {
+        setAsideState('aside-hide');
     } else {
-        aside.className = 'aside-init';
+        setAsideState('aside-init');
     }
-}
+};
 
-showAside = function () {
-    var aside = document.getElementsByTagName('main')[0];
-    if (!aside) return;
-    aside.className = 'aside-show';
-}
+window.showAside = function () {
+    setAsideState('aside-show');
+};

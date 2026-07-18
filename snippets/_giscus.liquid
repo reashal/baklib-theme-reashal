@@ -1,9 +1,9 @@
 <section class="giscus">
     <script id="giscus" src="https://giscus.app/client.js"
-        data-repo="reashal/comments"
-        data-repo-id="R_kgDOJ3Grhw"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOJ3Grh84CXprQ"
+        data-repo="{{ site.settings.giscus_repo | default: 'reashal/comments' | escape }}"
+        data-repo-id="{{ site.settings.giscus_repo_id | default: 'R_kgDOJ3Grhw' | escape }}"
+        data-category="{{ site.settings.giscus_category | default: 'Announcements' | escape }}"
+        data-category-id="{{ site.settings.giscus_category_id | default: 'DIC_kwDOJ3Grh84CXprQ' | escape }}"
         data-mapping="pathname"
         data-strict="0"
         data-reactions-enabled="1"
@@ -15,18 +15,22 @@
         async></script>
 </section>
 <script>
-function syncGiscusTheme(){
+(function(){
+  function syncGiscusTheme(){
     var isDark=document.documentElement.classList.contains("dark");
     var theme=isDark?"dark":"light";
     var frame=document.querySelector("iframe.giscus-frame");
     if(frame){frame.contentWindow.postMessage({giscus:{setConfig:{theme:theme}}},"https://giscus.app");}
     else{var script=document.getElementById("giscus");if(script)script.setAttribute("data-theme",theme);}
-}
-syncGiscusTheme();
-window.addEventListener("message",function(e){
+  }
+  syncGiscusTheme();
+  if(window.__giscusMessageHandler){window.removeEventListener("message",window.__giscusMessageHandler);}
+  window.__giscusMessageHandler=function(e){
     if(e.origin!=="https://giscus.app")return;
     if(e.data&&e.data.giscus&&e.data.giscus.discussion!==undefined)syncGiscusTheme();
-});
-var toggleBtn=document.getElementById("themeToggle");
-if(toggleBtn){toggleBtn.addEventListener("click",function(){requestAnimationFrame(syncGiscusTheme);});}
+  };
+  window.addEventListener("message",window.__giscusMessageHandler);
+  var toggleBtn=document.getElementById("themeToggle");
+  if(toggleBtn){toggleBtn.addEventListener("click",function(){requestAnimationFrame(syncGiscusTheme);});}
+})();
 </script>

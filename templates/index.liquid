@@ -1,17 +1,32 @@
 <article class="article-container">
   <section class="moments">
     <h1>{{ site.settings.index_title | default: '动态' }}</h1>
+    {% assign moments_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+    {% if moments_cdn_prefix != blank %}
+      {% unless moments_cdn_prefix contains '://' %}
+        {% assign moments_cdn_prefix = 'https://' | append: moments_cdn_prefix %}
+      {% endunless %}
+      {% assign moments_cdn_last_char = moments_cdn_prefix | slice: -1, 1 %}
+      {% if moments_cdn_last_char == '/' %}
+        {% assign moments_cdn_prefix_size = moments_cdn_prefix | size | minus: 1 %}
+        {% assign moments_cdn_prefix = moments_cdn_prefix | slice: 0, moments_cdn_prefix_size %}
+      {% endif %}
+    {% endif %}
+    {% assign moment_avatar_local_url = 'images/reashal.svg' | asset_url %}
+    {% assign moment_avatar_url = moment_avatar_local_url %}
+    {% if moments_cdn_prefix != blank %}
+      {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
+    {% endif %}
     {% assign has = false %}
-    {% for p in site.pages %}
-      {% if p.settings.date != blank %}{% assign has = true %}{% endif %}
-    {% endfor %}
-    {% if has %}
-      {% for p in site.pages reversed %}
-        {% if p.settings.date != blank %}
-      <article class="moment" id="{{ p.hashid | default: p.id }}">
+    {% assign moment_pages = site.pages | order_by: '-created_at' | limit: 100 %}
+    {% for p in moment_pages %}
+      {% assign moment_path_parts = p.path | split: '/' %}
+      {% if moment_path_parts.size == 2 and moment_path_parts[1] != blank and p.settings.date != blank and p.settings.description == blank %}
+        {% assign has = true %}
+      <article class="moment" id="{{ p.id }}">
         <header class="moment-author">
           <figure class="author-avatar">
-            <img src="{{ 'images/reashal.svg' | asset_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none" />
+            <img src="{{ moment_avatar_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none"{% if moments_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ moment_avatar_local_url }}';"{% endif %} />
           </figure>
           <div class="author-info">
             <span class="author-name">睿屿青衫</span>
@@ -24,13 +39,35 @@
             {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
             {{ moment_content }}
           {% else %}
-            <a href="{{ p.full_path }}">{{ p.link_text }}</a>
+            <a href="{{ p.path }}">{{ p.link_text }}</a>
           {% endif %}
         </section>
         {% if p.settings.images != blank %}
           {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
           <section class="moment-images">
-            {% for img_line in img_lines %}{% assign img_parts = img_line | split: "|" %}<img src="{{ img_parts[0] | strip | asset_url }}" alt="{{ img_parts[1] | strip }}" loading="lazy" />{% endfor %}
+            {% for img_line in img_lines %}
+              {% assign img_parts = img_line | split: '|' %}
+              {% assign moment_image_path = img_parts[0] | strip %}
+              {% if moment_image_path != blank %}
+                {% assign moment_image_local_url = moment_image_path %}
+                {% assign moment_image_url = moment_image_path %}
+                {% assign moment_image_uses_cdn = false %}
+                {% unless moment_image_path contains '://' %}
+                  {% assign moment_image_local_url = moment_image_path | asset_url %}
+                  {% assign moment_image_url = moment_image_local_url %}
+                  {% if moments_cdn_prefix != blank %}
+                    {% assign moment_image_first_char = moment_image_path | slice: 0, 1 %}
+                    {% if moment_image_first_char == '/' %}
+                      {% assign moment_image_url = moments_cdn_prefix | append: moment_image_path %}
+                    {% else %}
+                      {% assign moment_image_url = moments_cdn_prefix | append: '/' | append: moment_image_path %}
+                    {% endif %}
+                    {% assign moment_image_uses_cdn = true %}
+                  {% endif %}
+                {% endunless %}
+            <img src="{{ moment_image_url }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy"{% if moment_image_uses_cdn %} onerror="this.onerror=null;this.src='{{ moment_image_local_url }}';"{% endif %} />
+              {% endif %}
+            {% endfor %}
           </section>
         {% endif %}
         {% if p.settings.location != blank %}
@@ -40,7 +77,7 @@
           <section class="moment-interaction">
             {% if p.settings.stars != blank %}
               {% assign star_list = p.settings.stars | split: "," %}
-              <div class="interaction-stars">{% for star in star_list %}<span class="star-item">{{ star | strip }}</span>{% endfor %}</div>
+              <div class="interaction-stars">{% for star in star_list %}{% assign star_name = star | strip %}{% if star_name != blank %}<span class="star-item">{{ star_name }}</span>{% endif %}{% endfor %}</div>
             {% endif %}
             {% if p.settings.comments != blank %}
               {% assign comment_list = p.settings.comments | newline_to_br | strip_newlines | split: "<br />" %}
@@ -51,11 +88,11 @@
           </section>
         {% endif %}
       </article>
-        {% endif %}
-      {% endfor %}
-    {% else %}
+      {% endif %}
+    {% endfor %}
+    {% unless has %}
       <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
-    {% endif %}
+    {% endunless %}
     <footer class="moments-footer">
       <p class="end-tip">故事暂且讲到这里</p>
     </footer>

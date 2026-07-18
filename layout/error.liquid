@@ -1,15 +1,53 @@
 <!DOCTYPE html>
-<html lang="{{ site.language }}">
+<html lang="{{ site.language | escape }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404｜睿屿青衫</title>
+  {% assign error_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+  {% if error_cdn_prefix != blank %}
+    {% unless error_cdn_prefix contains '://' %}
+      {% assign error_cdn_prefix = 'https://' | append: error_cdn_prefix %}
+    {% endunless %}
+    {% assign error_cdn_last_char = error_cdn_prefix | slice: -1, 1 %}
+    {% if error_cdn_last_char == '/' %}
+      {% assign error_cdn_prefix_size = error_cdn_prefix | size | minus: 1 %}
+      {% assign error_cdn_prefix = error_cdn_prefix | slice: 0, error_cdn_prefix_size %}
+    {% endif %}
+  {% endif %}
+  <title>404｜{{ site.name }}</title>
   <meta name="description" content="抱歉，您访问的页面不存在">
+  {% assign error_favicon_local_url = 'favicon.svg' | asset_url %}
+  {% assign error_favicon_url = error_favicon_local_url %}
+  {% if error_cdn_prefix != blank %}
+    {% assign error_favicon_url = error_cdn_prefix | append: '/favicon.svg' %}
+  {% endif %}
+  <link rel="icon" href="{{ error_favicon_url }}"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_favicon_local_url }}';"{% endif %}>
   {% meta_tags %}
   {% render 'theme_runtime_colors' %}
-  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
-  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
-  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {% assign error_application_css_local_url = 'stylesheets/application.css' | asset_url %}
+  {% assign error_application_css_url = error_application_css_local_url %}
+  {% assign error_base_css_local_url = 'stylesheets/reashal-base.css' | asset_url %}
+  {% assign error_base_css_url = error_base_css_local_url %}
+  {% assign error_iconfont_css_local_url = 'stylesheets/iconfont.css' | asset_url %}
+  {% assign error_iconfont_css_url = error_iconfont_css_local_url %}
+  {% if error_cdn_prefix != blank %}
+    {% assign error_application_css_url = error_cdn_prefix | append: '/stylesheets/application.css' %}
+    {% assign error_base_css_url = error_cdn_prefix | append: '/stylesheets/reashal-base.css' %}
+    {% assign error_iconfont_css_url = error_cdn_prefix | append: '/stylesheets/iconfont.css' %}
+  {% endif %}
+  <link rel="stylesheet" href="{{ error_application_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_application_css_local_url }}';"{% endif %}>
+  <link rel="stylesheet" href="{{ error_base_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_base_css_local_url }}';"{% endif %}>
+  <link rel="stylesheet" href="{{ error_iconfont_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_iconfont_css_local_url }}';"{% endif %}>
+  {% assign error_wallpaper_local_url = 'images/wallpaper.webp' | asset_url %}
+  {% assign error_wallpaper_url = error_wallpaper_local_url %}
+  {% if error_cdn_prefix != blank %}
+    {% assign error_wallpaper_url = error_cdn_prefix | append: '/images/wallpaper.webp' %}
+  {% endif %}
+  <style>:root{--wallpaper:url({{ error_wallpaper_url }})}</style>
+  {% if error_cdn_prefix != blank %}
+  <link rel="preload" as="image" href="{{ error_wallpaper_url }}" onerror="document.documentElement.style.setProperty('--wallpaper','url({{ error_wallpaper_local_url }})');">
+  {% endif %}
+  {% assign error_home_path = site.index_path | default: '/' %}
   <style>
     .not-found-container { display:flex; align-items:center; justify-content:center; padding:1rem; flex:1; }
     .not-found-content { text-align:center; max-width:500px; width:100%; padding:2rem 0.5rem; }
@@ -45,8 +83,8 @@
           <h1 class="not-found-title">页面走丢了</h1>
           <p class="not-found-desc">抱歉，您访问的页面不存在或已被移除</p>
           <div class="not-found-buttons">
-            <button onclick="window.history.back()" class="btn-back">返回上一页</button>
-            <a href="/" class="btn-home">返回首页</a>
+            <button onclick="if(window.history.length>1){window.history.back()}else{window.location.href={{ error_home_path | json | escape }}}" class="btn-back">返回上一页</button>
+            <a href="{{ error_home_path | escape }}" class="btn-home">返回首页</a>
           </div>
           <div class="not-found-quote">
             <p>"人生就像一场旅行，总会遇到一些意外的风景"</p>
@@ -55,6 +93,11 @@
       </div>
     </section>
   </main>
-  {{ 'javascripts/aside.js' | asset_url | script_tag }}
+  {% assign error_aside_js_local_url = 'javascripts/aside.js' | asset_url %}
+  {% assign error_aside_js_url = error_aside_js_local_url %}
+  {% if error_cdn_prefix != blank %}
+    {% assign error_aside_js_url = error_cdn_prefix | append: '/javascripts/aside.js' %}
+  {% endif %}
+  <script src="{{ error_aside_js_url }}"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ error_aside_js_local_url }}';"{% endif %}></script>
 </body>
 </html>

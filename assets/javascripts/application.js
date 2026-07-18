@@ -680,10 +680,50 @@ lucide/dist/esm/lucide.mjs:
     if (!root) return;
 
     var config;
-    try { config = JSON.parse(dataEl.value); } catch (e) { return; }
+    try {
+      config = JSON.parse(dataEl.value);
+    } catch (e) {
+      var loadingHeading = root.querySelector('.showcase-h');
+      if (loadingHeading) loadingHeading.textContent = '展示数据格式有误';
+      return;
+    }
+    if (!config || typeof config !== 'object' || Array.isArray(config)) {
+      var invalidHeading = root.querySelector('.showcase-h');
+      if (invalidHeading) invalidHeading.textContent = '展示数据格式有误';
+      return;
+    }
     root.innerHTML = '';
+    var cdnPrefix = (dataEl.getAttribute('data-cdn-prefix') || '').replace(/\/$/, '');
 
-    if (config.intro) {
+    function createShowcaseImage(imagePath, title, fallbackParent) {
+      var rawPath = String(imagePath || '').trim();
+      if (!rawPath) return null;
+
+      var isAbsolute = /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(rawPath);
+      var localPath = rawPath;
+      var primaryPath = rawPath;
+      if (!isAbsolute && cdnPrefix) {
+        primaryPath = cdnPrefix + (rawPath.charAt(0) === '/' ? rawPath : '/' + rawPath);
+      }
+
+      var img = document.createElement('img');
+      var fallbackAttempted = false;
+      img.src = primaryPath;
+      img.alt = title || '';
+      img.onerror = function() {
+        if (!isAbsolute && cdnPrefix && !fallbackAttempted) {
+          fallbackAttempted = true;
+          this.src = localPath;
+          return;
+        }
+        this.onerror = null;
+        this.style.display = 'none';
+        fallbackParent.classList.add('no-image');
+      };
+      return img;
+    }
+
+    if (Array.isArray(config.intro)) {
       var h = document.createElement('h2');
       h.className = 'showcase-h showcase-intro';
       h.textContent = '写在前面';
@@ -696,22 +736,26 @@ lucide/dist/esm/lucide.mjs:
       });
     }
 
-    if (!config.sections) return;
+    if (!Array.isArray(config.sections)) return;
 
     config.sections.forEach(function(section) {
+      if (!section || typeof section !== 'object') return;
       var heading = document.createElement('h2');
       heading.className = 'showcase-h';
-      heading.textContent = section.title;
+      heading.textContent = section.title || '';
       root.appendChild(heading);
 
       var body = document.createElement('div');
       body.className = 'showcase-body';
 
-      section.cards.forEach(function(card) {
-        var mode = card.imageMode || 'text-only';
-        var hasLink = card.link && card.link.trim() !== '';
+      var cards = Array.isArray(section.cards) ? section.cards : [];
+      cards.forEach(function(card) {
+        if (!card || typeof card !== 'object') return;
+        var allowedModes = ['text-only', 'icon-simple', 'app-card', 'product-card'];
+        var mode = allowedModes.indexOf(card.imageMode) >= 0 ? card.imageMode : 'text-only';
+        var hasLink = typeof card.link === 'string' && card.link.trim() !== '';
         var w = document.createElement(hasLink ? 'a' : 'div');
-        if (hasLink) { w.href = card.link; w.target = '_blank'; }
+        if (hasLink) { w.href = card.link; w.target = '_blank'; w.rel = 'noopener noreferrer'; }
         w.className = 'showcase-' + mode;
 
         if (mode === 'icon-simple' || mode === 'app-card') {
@@ -719,10 +763,8 @@ lucide/dist/esm/lucide.mjs:
           avatar.className = 'showcase-avatar' + (card.image ? '' : ' no-image');
           avatar.setAttribute('data-initial', (card.title || '?')[0]);
           if (card.image) {
-            var img = document.createElement('img');
-            img.src = card.image; img.alt = card.title;
-            img.onerror = function() { this.style.display = 'none'; avatar.classList.add('no-image'); };
-            avatar.appendChild(img);
+            var avatarImage = createShowcaseImage(card.image, card.title, avatar);
+            if (avatarImage) avatar.appendChild(avatarImage);
           }
           w.appendChild(avatar);
         }
@@ -732,10 +774,8 @@ lucide/dist/esm/lucide.mjs:
           li.className = 'showcase-large-image' + (card.image ? '' : ' no-image');
           li.setAttribute('data-title', (card.title || '?')[0]);
           if (card.image) {
-            var img = document.createElement('img');
-            img.src = card.image; img.alt = card.title;
-            img.onerror = function() { this.style.display = 'none'; li.classList.add('no-image'); };
-            li.appendChild(img);
+            var productImage = createShowcaseImage(card.image, card.title, li);
+            if (productImage) li.appendChild(productImage);
           }
           w.appendChild(li);
         }
@@ -744,10 +784,10 @@ lucide/dist/esm/lucide.mjs:
         info.className = 'showcase-info';
 
         var titleEl = document.createElement('h3');
-        titleEl.textContent = card.title;
+        titleEl.textContent = card.title || '';
         info.appendChild(titleEl);
 
-        if (card.specs) {
+        if (Array.isArray(card.specs)) {
           var specWrap = document.createElement('div');
           specWrap.className = 'showcase-specs';
           card.specs.forEach(function(s) {
