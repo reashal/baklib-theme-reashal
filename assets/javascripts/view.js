@@ -72,6 +72,8 @@
             }
 
             images.forEach(function(img, imageIndex) {
+                if (img.dataset.imageViewerBound === 'true') return;
+                img.dataset.imageViewerBound = 'true';
                 img.addEventListener('click', function(event) {
                     if (imageList[imageIndex]) imageList[imageIndex].url = img.currentSrc || img.src;
                     if (openImage(imageIndex)) {
@@ -82,7 +84,8 @@
             });
 
             var overlay = imageSection.querySelector('.img-mask-overlay');
-            if (overlay && imageList[8]) {
+            if (overlay && imageList[8] && overlay.dataset.imageViewerBound !== 'true') {
+                overlay.dataset.imageViewerBound = 'true';
                 overlay.addEventListener('click', function(event) {
                     if (openImage(8)) event.stopPropagation();
                 });
@@ -177,6 +180,12 @@
         collectImages();
         bindEvents();
     }
+
+    if (window.__momentsImageViewerHandler) {
+        document.removeEventListener('moments:appended', window.__momentsImageViewerHandler);
+    }
+    window.__momentsImageViewerHandler = collectImages;
+    document.addEventListener('moments:appended', window.__momentsImageViewerHandler);
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });

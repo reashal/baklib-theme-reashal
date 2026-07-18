@@ -17,12 +17,11 @@
     {% if moments_cdn_prefix != blank %}
       {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
     {% endif %}
+    {% assign moment_pages = site.pages | where: 'template_name', 'moments' | order_by: '-date' %}
+    {% paginate_tag moment_pages, as: 'moments_page', per: 3 %}
     {% assign has = false %}
-    {% assign moment_pages = site.pages | limit: 100 %}
-    {% for p in moment_pages reversed %}
-      {% assign moment_path_parts = p.path | split: '/' %}
-      {% if moment_path_parts.size == 2 and moment_path_parts[1] != blank and p.settings.date != blank and p.settings.description == blank %}
-        {% assign has = true %}
+    {% for p in moments_page %}
+      {% assign has = true %}
       <article class="moment" id="{{ p.id }}">
         <header class="moment-author">
           <figure class="author-avatar">
@@ -113,23 +112,28 @@
           </section>
         {% endif %}
       </article>
-      {% endif %}
     {% endfor %}
     {% unless has %}
       <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
     {% endunless %}
+    {% assign moments_next_url = blank %}
+    {% if paginate.next_page %}
+      {% assign moments_next_url = paginate.url_for[paginate.next_page] %}
+    {% endif %}
+    <div id="moments-pagination" aria-hidden="true" style="height:1px;overflow:hidden;" data-next-url="{{ moments_next_url | escape }}"></div>
     <footer class="moments-footer">
-      <p class="end-tip">故事暂且讲到这里</p>
+      <p class="end-tip" data-moments-status>{% if moments_next_url != blank %}继续下滑{% else %}故事暂且讲到这里{% endif %}</p>
     </footer>
+    {% endpaginate_tag %}
   </section>
 </article>
 
 {% schema %}
   {
-    "name": "首页",
+    "name": "动态流",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["page"],
+    "sub_page_templates": ["moments"],
     "settings": []
   }
 {% endschema %}
