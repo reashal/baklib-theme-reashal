@@ -1,6 +1,6 @@
 (function() {
-    var momentGroups = {};
-    var currentMomentId = null;
+    var imageGroups = {};
+    var currentGroupId = null;
     var currentIndex = 0;
     var previousBodyOverflow = '';
     var viewImg;
@@ -24,26 +24,27 @@
     }
 
     function collectImages() {
-        momentGroups = {};
+        imageGroups = {};
         var mainEl = getMainElement();
         if (!mainEl) return;
 
-        document.querySelectorAll('.moment-images').forEach(function(momentSection, groupIndex) {
-            var moment = momentSection.closest('.moment');
-            var momentId = momentSection.getAttribute('data-moment-id') || (moment && moment.id ? moment.id : 'moment-group-' + groupIndex);
-            var images = Array.from(momentSection.querySelectorAll('img'));
-            var imageList = [];
-            var imageData = momentSection.getAttribute('data-imgs');
+        var imageSections = Array.from(document.querySelectorAll('.moment-images'));
+        var articleSection = document.querySelector('.article-container.doc');
+        if (articleSection) imageSections.push(articleSection);
 
-            if (imageData) {
-                try {
-                    imageList = JSON.parse(imageData).filter(function(item) {
-                        return item && item.url;
-                    });
-                } catch (error) {
-                    imageList = [];
-                }
-            }
+        imageSections.forEach(function(imageSection, groupIndex) {
+            var moment = imageSection.closest('.moment');
+            var groupId = imageSection.getAttribute('data-moment-id') || (moment && moment.id ? moment.id : 'image-group-' + groupIndex);
+            var images = Array.from(imageSection.querySelectorAll('img:not(.view-none)'));
+            var imageList = Array.from(imageSection.querySelectorAll('.image-viewer-item')).map(function(item) {
+                return {
+                    url: item.dataset.imageUrl,
+                    localUrl: item.dataset.localUrl || item.dataset.imageUrl,
+                    alt: item.dataset.imageAlt || ''
+                };
+            }).filter(function(item) {
+                return item.url;
+            });
 
             if (imageList.length === 0) {
                 imageList = images.map(function(img) {
@@ -56,37 +57,41 @@
             }
 
             if (imageList.length === 0) return;
-            momentGroups[momentId] = imageList;
+            imageGroups[groupId] = imageList;
 
             function openImage(imageIndex) {
-                if (!imageList[imageIndex] || mainEl.classList.contains('aside-show')) return;
-                currentMomentId = momentId;
+                if (!imageList[imageIndex] || mainEl.classList.contains('aside-show')) return false;
+                currentGroupId = groupId;
                 currentIndex = imageIndex;
                 showImage();
                 viewBox.classList.remove('view-box-hide');
                 viewBox.classList.add('view-box-show');
                 previousBodyOverflow = document.body.style.overflow;
                 document.body.style.overflow = 'hidden';
+                return true;
             }
 
             images.forEach(function(img, imageIndex) {
-                img.addEventListener('click', function() {
+                img.addEventListener('click', function(event) {
                     if (imageList[imageIndex]) imageList[imageIndex].url = img.currentSrc || img.src;
-                    openImage(imageIndex);
+                    if (openImage(imageIndex)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
                 });
             });
 
-            var overlay = momentSection.querySelector('.img-mask-overlay');
+            var overlay = imageSection.querySelector('.img-mask-overlay');
             if (overlay && imageList[8]) {
-                overlay.addEventListener('click', function() {
-                    openImage(8);
+                overlay.addEventListener('click', function(event) {
+                    if (openImage(8)) event.stopPropagation();
                 });
             }
         });
     }
 
     function showImage() {
-        var imageList = momentGroups[currentMomentId];
+        var imageList = imageGroups[currentGroupId];
         if (!imageList || !imageList[currentIndex]) return;
 
         var currentImage = imageList[currentIndex];
@@ -130,7 +135,7 @@
     }
 
     function showNext() {
-        var imageList = momentGroups[currentMomentId];
+        var imageList = imageGroups[currentGroupId];
         if (imageList && currentIndex < imageList.length - 1) {
             currentIndex += 1;
             showImage();

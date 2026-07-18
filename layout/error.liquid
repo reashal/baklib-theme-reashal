@@ -72,7 +72,7 @@
           <h1 class="not-found-title">页面走丢了</h1>
           <p class="not-found-desc">抱歉，您访问的页面不存在或已被移除</p>
           <div class="not-found-buttons">
-            <button onclick="if(window.history.length>1){window.history.back()}else{window.location.href={{ error_home_path | json | escape }}}" class="btn-back">返回上一页</button>
+            <button data-home-path="{{ error_home_path | escape }}" onclick="if(window.history.length>1){window.history.back()}else{window.location.href=this.dataset.homePath}" class="btn-back">返回上一页</button>
             <a href="{{ error_home_path | escape }}" class="btn-home">返回首页</a>
           </div>
           <div class="not-found-quote">

@@ -110,32 +110,7 @@
               {% assign moment_image_count = moment_image_count | plus: 1 %}
             {% endif %}
           {% endfor %}
-          {% capture moment_images_json %}[
-            {% assign moment_image_json_index = 0 %}
-            {% for img_line in img_lines %}
-              {% assign image_parts = img_line | split: '|' %}
-              {% assign moment_image_path = image_parts[0] | strip %}
-              {% if moment_image_path != blank %}
-                {% assign moment_image_json_index = moment_image_json_index | plus: 1 %}
-                {% assign moment_image_json_local_url = moment_image_path %}
-                {% assign moment_image_json_url = moment_image_path %}
-                {% unless moment_image_path contains '://' %}
-                  {% assign moment_image_json_local_url = moment_image_path | asset_url %}
-                  {% assign moment_image_json_url = moment_image_json_local_url %}
-                  {% if moment_cdn_prefix != blank %}
-                    {% assign moment_image_first_char = moment_image_path | slice: 0, 1 %}
-                    {% if moment_image_first_char == '/' %}
-                      {% assign moment_image_json_url = moment_cdn_prefix | append: moment_image_path %}
-                    {% else %}
-                      {% assign moment_image_json_url = moment_cdn_prefix | append: '/' | append: moment_image_path %}
-                    {% endif %}
-                  {% endif %}
-                {% endunless %}
-                {% if moment_image_json_index > 1 %},{% endif %}{"url":{{ moment_image_json_url | json }},"localUrl":{{ moment_image_json_local_url | json }},"alt":{{ image_parts[1] | strip | json }}}
-              {% endif %}
-            {% endfor %}
-          ]{% endcapture %}
-          <section class="moment-images" data-moment-id="{{ moment_id }}" data-imgs="{{ moment_images_json | strip | escape }}">
+          <section class="moment-images" data-moment-id="{{ moment_id }}">
             {% if moment_image_count == 1 %}
               <figure class="img-single">
             {% elsif moment_image_count <= 4 %}
@@ -165,12 +140,13 @@
                     {% assign moment_image_uses_cdn = true %}
                   {% endif %}
                 {% endunless %}
+                <span hidden class="image-viewer-item" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}" data-image-alt="{{ image_parts[1] | strip | escape }}"></span>
                 {% if moment_image_count > 9 and moment_image_index == 9 %}
-                  <div class="img-mask-overlay" style="background-image: url({{ moment_image_url | json | escape }}){% if moment_image_uses_cdn %}, url({{ moment_image_local_url | json | escape }}){% endif %};" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}">
+                  <div class="img-mask-overlay" style="background-image: url(&quot;{{ moment_image_url | escape }}&quot;){% if moment_image_uses_cdn %}, url(&quot;{{ moment_image_local_url | escape }}&quot;){% endif %};" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}">
                     <span class="img-mask-count">+{{ moment_image_count | minus: 8 }}</span>
                   </div>
                 {% elsif moment_image_count <= 9 or moment_image_index <= 8 %}
-                  <img src="{{ moment_image_url }}" alt="{{ image_parts[1] | strip | escape }}" loading="lazy" decoding="async"{% if moment_image_uses_cdn %} onerror="this.onerror=null;this.src='{{ moment_image_local_url }}';"{% endif %} />
+                  <img src="{{ moment_image_url }}" alt="{{ image_parts[1] | strip | escape }}" loading="lazy" decoding="async"{% if moment_image_uses_cdn %} data-local-src="{{ moment_image_local_url | escape }}" onerror="this.onerror=null;this.src=this.dataset.localSrc;"{% endif %} />
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -214,11 +190,9 @@
     {% if article_cdn_prefix != blank %}
       {% assign article_docs_cdn_url = article_cdn_prefix | append: '/images/docs/' %}
       {% assign article_cdn_prefix_size = article_cdn_prefix | size %}
-      {% assign article_docs_src_double = 'src="' | append: article_docs_cdn_url %}
-      {% assign article_docs_src_single = "src='" | append: article_docs_cdn_url %}
+      {% capture article_docs_src_double %}data-cdn-prefix-size="{{ article_cdn_prefix_size }}" onerror="this.onerror=null;this.src=this.src.substring(Number(this.dataset.cdnPrefixSize));" src="{{ article_docs_cdn_url }}{% endcapture %}
+      {% capture article_docs_src_single %}data-cdn-prefix-size="{{ article_cdn_prefix_size }}" onerror="this.onerror=null;this.src=this.src.substring(Number(this.dataset.cdnPrefixSize));" src='{{ article_docs_cdn_url }}{% endcapture %}
       {% assign doc_content = doc_content | replace: 'src="/images/docs/', article_docs_src_double | replace: "src='/images/docs/", article_docs_src_single %}
-      {% capture doc_image_open_tag %}<img onerror="if(this.src.indexOf({{ article_cdn_prefix | json | escape }})===0){this.onerror=null;this.src=this.src.substring({{ article_cdn_prefix_size }});}else{this.onerror=null;}" {% endcapture %}
-      {% assign doc_content = doc_content | replace: '<img ', doc_image_open_tag %}
     {% endif %}
     {% assign doc_content = doc_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
     {{ doc_content }}
