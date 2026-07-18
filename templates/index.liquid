@@ -18,8 +18,8 @@
       {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
     {% endif %}
     {% assign has = false %}
-    {% assign moment_pages = site.pages | order_by: '-created_at' | limit: 100 %}
-    {% for p in moment_pages %}
+    {% assign moment_pages = site.pages | limit: 100 %}
+    {% for p in moment_pages reversed %}
       {% assign moment_path_parts = p.path | split: '/' %}
       {% if moment_path_parts.size == 2 and moment_path_parts[1] != blank and p.settings.date != blank and p.settings.description == blank %}
         {% assign has = true %}
