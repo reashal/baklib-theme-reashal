@@ -17,30 +17,13 @@
     {% if moments_cdn_prefix != blank %}
       {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
     {% endif %}
-    {% assign moment_pages = page.children | where: 'template_name', 'moments' | order_by: '-date' %}
+    {% assign moment_pages = page.children | where: 'template_name', 'moment' | order_by: '-date' %}
     {% paginate_tag moment_pages, as: 'paginated_moments', per: 3 %}
     {% assign has = false %}
-    {% assign native_moment_count = paginated_moments | size %}
     {% for p in paginated_moments %}
       {% assign has = true %}
       {% render 'moment_card', p: p, moments_cdn_prefix: moments_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
     {% endfor %}
-    {% unless paginate.next_page %}
-      {% assign legacy_visible_slots = 3 | minus: native_moment_count %}
-      {% assign legacy_moment_index = 0 %}
-      {% assign legacy_moment_pages = page.children | where: 'template_name', 'page' %}
-      {% for p in legacy_moment_pages reversed %}
-        {% if p.settings.date != blank %}
-          {% assign legacy_moment_index = legacy_moment_index | plus: 1 %}
-          {% assign legacy_initially_hidden = false %}
-          {% if legacy_moment_index > legacy_visible_slots %}
-            {% assign legacy_initially_hidden = true %}
-          {% endif %}
-          {% assign has = true %}
-          {% render 'moment_card', p: p, legacy: true, initially_hidden: legacy_initially_hidden, moments_cdn_prefix: moments_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
-        {% endif %}
-      {% endfor %}
-    {% endunless %}
     {% unless has %}
       <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
     {% endunless %}
@@ -61,7 +44,7 @@
     "name": "动态流",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["moments", "page"],
+    "sub_page_templates": ["moment", "page"],
     "settings": []
   }
 {% endschema %}

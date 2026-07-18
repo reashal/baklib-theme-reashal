@@ -16,31 +16,22 @@
     if (!moments || !pagination) return;
 
     var footer = pagination.closest('.moments-footer');
+    var status = moments.querySelector('[data-moments-status]');
+    var scrollContainer = document.querySelector('.main');
     if (!footer) return;
 
-    var status = moments.querySelector('[data-moments-status]');
-    var pageSize = parseInt(pagination.dataset.pageSize, 10) || 3;
     var observer;
     var requestController;
+    var intentTimer;
     var loading = false;
     var armed = false;
+    var gestureLocked = false;
     var disposed = false;
-    var lastScrollY = window.scrollY;
+    var lastScrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+    var lastTouchY = null;
 
     function nextUrl() {
         return pagination.dataset.nextUrl || '';
-    }
-
-    function legacyCards() {
-        return Array.from(moments.querySelectorAll('.moment[data-moment-legacy="true"]'));
-    }
-
-    function hiddenLegacyCards() {
-        return legacyCards().filter(function(card) { return card.hidden; });
-    }
-
-    function hasMore() {
-        return Boolean(nextUrl()) || hiddenLegacyCards().length > 0;
     }
 
     function setStatus(message) {
@@ -48,22 +39,7 @@
     }
 
     function updateStatus() {
-        setStatus(hasMore() ? '继续下滑' : '故事暂且讲到这里');
-    }
-
-    function prepareInitialLegacyCards() {
-        var nativeCount = moments.querySelectorAll('.moment:not([data-moment-legacy="true"])').length;
-        var visibleLegacyCount = Math.max(0, pageSize - nativeCount);
-
-        legacyCards().forEach(function(card, index) {
-            card.hidden = index >= visibleLegacyCount;
-        });
-    }
-
-    function revealLegacyBatch(limit) {
-        var cards = hiddenLegacyCards().slice(0, limit);
-        cards.forEach(function(card) { card.hidden = false; });
-        return cards.length;
+        setStatus(nextUrl() ? '继续下滑' : '故事暂且讲到这里');
     }
 
     function disarmLoader() {
@@ -73,7 +49,7 @@
     }
 
     function armLoader() {
-        if (disposed || loading || armed || !hasMore()) return;
+        if (disposed || loading || armed || !nextUrl()) return;
         armed = true;
         observer.observe(pagination);
     }
@@ -82,35 +58,23 @@
         var knownIds = new Set(Array.from(moments.querySelectorAll('.moment[id]')).map(function(card) {
             return card.id;
         }));
-        var result = { appended: 0, native: 0, legacy: 0 };
+        var appended = 0;
 
         sourceDocument.querySelectorAll('.moments > .moment').forEach(function(card) {
             if (card.id && knownIds.has(card.id)) return;
             var importedCard = document.importNode(card, true);
-            var isLegacy = importedCard.dataset.momentLegacy === 'true';
-            if (isLegacy) importedCard.hidden = true;
             moments.insertBefore(importedCard, footer);
             if (card.id) knownIds.add(card.id);
-            result.appended += 1;
-            result[isLegacy ? 'legacy' : 'native'] += 1;
+            appended += 1;
         });
 
-        return result;
+        return appended;
     }
 
     function finishBatch() {
         loading = false;
         requestController = null;
         updateStatus();
-    }
-
-    function revealNextLegacyBatch() {
-        if (disposed || loading) return;
-        loading = true;
-        setStatus('正在加载...');
-        revealLegacyBatch(pageSize);
-        document.dispatchEvent(new CustomEvent('moments:appended'));
-        finishBatch();
     }
 
     async function loadNextPage() {
@@ -136,15 +100,10 @@
 
             var appended = appendCards(sourceDocument);
             pagination.dataset.nextUrl = sourcePagination.dataset.nextUrl || '';
-
-            if (!nextUrl() && appended.legacy > 0) {
-                revealLegacyBatch(Math.max(0, pageSize - appended.native));
-            }
-
             document.dispatchEvent(new CustomEvent('moments:appended'));
             finishBatch();
 
-            if (appended.appended === 0 && nextUrl()) {
+            if (appended === 0 && nextUrl()) {
                 loadNextPage();
             }
         } catch (error) {
@@ -158,49 +117,77 @@
 
     function processNextBatch() {
         disarmLoader();
-        if (nextUrl()) {
-            loadNextPage();
-        } else {
-            revealNextLegacyBatch();
-        }
+        loadNextPage();
     }
 
     observer = new IntersectionObserver(function(entries) {
         if (armed && entries.some(function(entry) { return entry.isIntersecting; })) {
             processNextBatch();
         }
-    }, { rootMargin: '0px 0px 80px 0px' });
+    }, {
+        root: scrollContainer || null,
+        rootMargin: '0px 0px 80px 0px'
+    });
 
-    function onScrollIntent(event) {
-        if (event.type === 'keydown') {
-            var acceptedKeys = ['ArrowDown', 'PageDown', 'End', ' '];
-            if (!acceptedKeys.includes(event.key)) return;
-        }
-        if (event.type === 'scroll') {
-            var currentScrollY = window.scrollY;
-            var scrollingDown = currentScrollY > lastScrollY;
-            lastScrollY = currentScrollY;
-            if (!scrollingDown) return;
-        }
-        armLoader();
+    function unlockGestureAfterIdle() {
+        window.clearTimeout(intentTimer);
+        intentTimer = window.setTimeout(function() {
+            gestureLocked = false;
+        }, 180);
     }
 
-    prepareInitialLegacyCards();
+    function acceptDownwardIntent(event) {
+        if (event.type === 'wheel') return event.deltaY > 0;
+        if (event.type === 'keydown') {
+            return ['ArrowDown', 'PageDown', 'End', ' '].includes(event.key);
+        }
+        if (event.type === 'touchmove') {
+            if (!event.touches.length) return false;
+            var currentTouchY = event.touches[0].clientY;
+            var movingDown = lastTouchY !== null && currentTouchY < lastTouchY;
+            lastTouchY = currentTouchY;
+            return movingDown;
+        }
+        if (event.type === 'scroll') {
+            var currentScrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+            var scrollingDown = currentScrollTop > lastScrollTop;
+            lastScrollTop = currentScrollTop;
+            return scrollingDown;
+        }
+        return false;
+    }
+
+    function onScrollIntent(event) {
+        if (!acceptDownwardIntent(event)) return;
+        if (!gestureLocked) {
+            gestureLocked = true;
+            armLoader();
+        }
+        unlockGestureAfterIdle();
+    }
+
+    function onTouchStart(event) {
+        lastTouchY = event.touches.length ? event.touches[0].clientY : null;
+    }
+
     updateStatus();
 
     window.addEventListener('wheel', onScrollIntent, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
     window.addEventListener('touchmove', onScrollIntent, { passive: true });
-    window.addEventListener('scroll', onScrollIntent, { passive: true });
     window.addEventListener('keydown', onScrollIntent);
+    (scrollContainer || window).addEventListener('scroll', onScrollIntent, { passive: true });
 
     function cleanup() {
         disposed = true;
+        window.clearTimeout(intentTimer);
         if (observer) observer.disconnect();
         if (requestController) requestController.abort();
         window.removeEventListener('wheel', onScrollIntent);
+        window.removeEventListener('touchstart', onTouchStart);
         window.removeEventListener('touchmove', onScrollIntent);
-        window.removeEventListener('scroll', onScrollIntent);
         window.removeEventListener('keydown', onScrollIntent);
+        (scrollContainer || window).removeEventListener('scroll', onScrollIntent);
         document.removeEventListener('turbo:before-cache', cleanup);
         if (window.__momentsInfiniteLoaderCleanup === cleanup) {
             window.__momentsInfiniteLoaderCleanup = null;

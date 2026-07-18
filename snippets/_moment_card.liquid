@@ -1,4 +1,4 @@
-<article class="moment" id="{{ p.id }}"{% if legacy %} data-moment-legacy="true"{% endif %}{% if initially_hidden %} hidden{% endif %}>
+<article class="moment" id="{{ p.id }}">
   <header class="moment-author">
     <figure class="author-avatar">
       <img src="{{ moment_avatar_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none"{% if moments_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ moment_avatar_local_url }}';"{% endif %} />
@@ -18,9 +18,7 @@
     {% endif %}
   </section>
   {% if p.settings.images != blank %}
-    {% if legacy %}
-      {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-    {% elsif p.settings.images.first != blank %}
+    {% if p.settings.images.first != blank %}
       {% assign img_lines = p.settings.images %}
     {% else %}
       {% assign img_lines = p.settings.images | split: "||__baklib_moment_image__||" %}
