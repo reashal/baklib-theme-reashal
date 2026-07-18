@@ -39,8 +39,6 @@
   {% assign use_article_styles = false %}
   {% if page.template_name == 'index' %}
     {% assign use_moments_styles = true %}
-  {% elsif page.template_name == 'moments' %}
-    {% assign use_moments_styles = true %}
   {% elsif page.template_name == 'search' %}
     {% assign use_docs_styles = true %}
   {% elsif page.template_name == 'showcase' or page.template_name == 'showcase_section' %}
@@ -110,9 +108,6 @@
   {% render 'image_viewer' %}
 
   {{ 'javascripts/view.js' | asset_url | script_tag }}
-  {% if page.template_name == 'index' %}
-    {{ 'javascripts/moments.js' | asset_url | script_tag }}
-  {% endif %}
   {{ 'javascripts/aside.js' | asset_url | script_tag }}
   <canvas id="fireworks-canvas" class="fireworks" style="position:fixed;left:0;top:0;z-index:99999999;pointer-events:none;" data-turbo-permanent aria-hidden="true"></canvas>
   <script src="{{ 'javascripts/cursor.js' | asset_url }}" data-turbo-eval="false"></script>
