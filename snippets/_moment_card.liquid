@@ -1,4 +1,4 @@
-<article class="moment" id="{{ p.id }}">
+<article class="moment" id="{{ p.id }}"{% if legacy %} data-moment-legacy="true"{% endif %}>
   <header class="moment-author">
     <figure class="author-avatar">
       <img src="{{ moment_avatar_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none"{% if moments_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ moment_avatar_local_url }}';"{% endif %} />

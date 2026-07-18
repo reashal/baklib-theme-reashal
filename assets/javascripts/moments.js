@@ -8,49 +8,98 @@
     if (!moments || !pagination) return;
 
     var status = moments.querySelector('[data-moments-status]');
+    var pageSize = parseInt(pagination.dataset.pageSize, 10) || 3;
     var observer;
     var requestController;
-    var retryHandler;
     var loading = false;
+    var armed = false;
     var disposed = false;
+    var lastScrollY = window.scrollY;
 
     function nextUrl() {
         return pagination.dataset.nextUrl || '';
+    }
+
+    function legacyCards() {
+        return Array.from(moments.querySelectorAll('.moment[data-moment-legacy="true"]'));
+    }
+
+    function hiddenLegacyCards() {
+        return legacyCards().filter(function(card) { return card.hidden; });
+    }
+
+    function hasMore() {
+        return Boolean(nextUrl()) || hiddenLegacyCards().length > 0;
     }
 
     function setStatus(message) {
         if (status) status.textContent = message;
     }
 
-    function clearRetryHandler() {
-        if (!retryHandler) return;
-        window.removeEventListener('wheel', retryHandler);
-        window.removeEventListener('touchmove', retryHandler);
-        retryHandler = null;
+    function updateStatus() {
+        setStatus(hasMore() ? '继续下滑' : '故事暂且讲到这里');
     }
 
-    function retryOnNextScroll() {
-        clearRetryHandler();
-        if (!disposed && nextUrl()) {
-            observer.observe(pagination);
-        }
+    function prepareInitialLegacyCards() {
+        var nativeCount = moments.querySelectorAll('.moment:not([data-moment-legacy="true"])').length;
+        var visibleLegacyCount = Math.max(0, pageSize - nativeCount);
+
+        legacyCards().forEach(function(card, index) {
+            card.hidden = index >= visibleLegacyCount;
+        });
+    }
+
+    function revealLegacyBatch(limit) {
+        var cards = hiddenLegacyCards().slice(0, limit);
+        cards.forEach(function(card) { card.hidden = false; });
+        return cards.length;
+    }
+
+    function disarmLoader() {
+        if (!armed) return;
+        armed = false;
+        observer.unobserve(pagination);
+    }
+
+    function armLoader() {
+        if (disposed || loading || armed || !hasMore()) return;
+        armed = true;
+        observer.observe(pagination);
     }
 
     function appendCards(sourceDocument) {
         var knownIds = new Set(Array.from(moments.querySelectorAll('.moment[id]')).map(function(card) {
             return card.id;
         }));
-        var appended = 0;
+        var result = { appended: 0, native: 0, legacy: 0 };
 
         sourceDocument.querySelectorAll('.moments > .moment').forEach(function(card) {
             if (card.id && knownIds.has(card.id)) return;
             var importedCard = document.importNode(card, true);
+            var isLegacy = importedCard.dataset.momentLegacy === 'true';
+            if (isLegacy) importedCard.hidden = true;
             moments.insertBefore(importedCard, pagination);
             if (card.id) knownIds.add(card.id);
-            appended += 1;
+            result.appended += 1;
+            result[isLegacy ? 'legacy' : 'native'] += 1;
         });
 
-        return appended;
+        return result;
+    }
+
+    function finishBatch() {
+        loading = false;
+        requestController = null;
+        updateStatus();
+    }
+
+    function revealNextLegacyBatch() {
+        if (disposed || loading) return;
+        loading = true;
+        setStatus('正在加载...');
+        revealLegacyBatch(pageSize);
+        document.dispatchEvent(new CustomEvent('moments:appended'));
+        finishBatch();
     }
 
     async function loadNextPage() {
@@ -76,19 +125,15 @@
 
             var appended = appendCards(sourceDocument);
             pagination.dataset.nextUrl = sourcePagination.dataset.nextUrl || '';
-            document.dispatchEvent(new CustomEvent('moments:appended'));
 
-            if (nextUrl()) {
-                setStatus('继续下滑');
-            } else {
-                setStatus('故事暂且讲到这里');
-                observer.disconnect();
+            if (!nextUrl() && appended.legacy > 0) {
+                revealLegacyBatch(Math.max(0, pageSize - appended.native));
             }
 
-            loading = false;
-            requestController = null;
+            document.dispatchEvent(new CustomEvent('moments:appended'));
+            finishBatch();
 
-            if (appended === 0 && nextUrl()) {
+            if (appended.appended === 0 && nextUrl()) {
                 loadNextPage();
             }
         } catch (error) {
@@ -96,32 +141,55 @@
             requestController = null;
             if (error.name !== 'AbortError') {
                 setStatus('加载失败，继续下滑重试');
-                observer.unobserve(pagination);
-                clearRetryHandler();
-                retryHandler = retryOnNextScroll;
-                window.addEventListener('wheel', retryHandler, { once: true, passive: true });
-                window.addEventListener('touchmove', retryHandler, { once: true, passive: true });
             }
         }
     }
 
-    observer = new IntersectionObserver(function(entries) {
-        if (entries.some(function(entry) { return entry.isIntersecting; })) {
+    function processNextBatch() {
+        disarmLoader();
+        if (nextUrl()) {
             loadNextPage();
+        } else {
+            revealNextLegacyBatch();
         }
-    }, { rootMargin: '0px 0px 160px 0px' });
-
-    if (nextUrl()) {
-        observer.observe(pagination);
-    } else {
-        setStatus('故事暂且讲到这里');
     }
+
+    observer = new IntersectionObserver(function(entries) {
+        if (armed && entries.some(function(entry) { return entry.isIntersecting; })) {
+            processNextBatch();
+        }
+    }, { rootMargin: '0px 0px 80px 0px' });
+
+    function onScrollIntent(event) {
+        if (event.type === 'keydown') {
+            var acceptedKeys = ['ArrowDown', 'PageDown', 'End', ' '];
+            if (!acceptedKeys.includes(event.key)) return;
+        }
+        if (event.type === 'scroll') {
+            var currentScrollY = window.scrollY;
+            var scrollingDown = currentScrollY > lastScrollY;
+            lastScrollY = currentScrollY;
+            if (!scrollingDown) return;
+        }
+        armLoader();
+    }
+
+    prepareInitialLegacyCards();
+    updateStatus();
+
+    window.addEventListener('wheel', onScrollIntent, { passive: true });
+    window.addEventListener('touchmove', onScrollIntent, { passive: true });
+    window.addEventListener('scroll', onScrollIntent, { passive: true });
+    window.addEventListener('keydown', onScrollIntent);
 
     function cleanup() {
         disposed = true;
         if (observer) observer.disconnect();
         if (requestController) requestController.abort();
-        clearRetryHandler();
+        window.removeEventListener('wheel', onScrollIntent);
+        window.removeEventListener('touchmove', onScrollIntent);
+        window.removeEventListener('scroll', onScrollIntent);
+        window.removeEventListener('keydown', onScrollIntent);
         document.removeEventListener('turbo:before-cache', cleanup);
         if (window.__momentsInfiniteLoaderCleanup === cleanup) {
             window.__momentsInfiniteLoaderCleanup = null;

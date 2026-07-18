@@ -29,7 +29,7 @@
       {% for p in legacy_moment_pages reversed %}
         {% if p.settings.date != blank %}
           {% assign has = true %}
-          {% render 'moment_card', p: p, moments_cdn_prefix: moments_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
+          {% render 'moment_card', p: p, legacy: true, moments_cdn_prefix: moments_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
         {% endif %}
       {% endfor %}
     {% endunless %}
@@ -40,7 +40,7 @@
     {% if paginate.next_page %}
       {% assign moments_next_url = paginate.url_for[paginate.next_page] %}
     {% endif %}
-    <div id="moments-pagination" aria-hidden="true" style="height:1px;overflow:hidden;" data-next-url="{{ moments_next_url | escape }}"></div>
+    <div id="moments-pagination" aria-hidden="true" style="height:1px;overflow:hidden;" data-next-url="{{ moments_next_url | escape }}" data-page-size="3"></div>
     <footer class="moments-footer">
       <p class="end-tip" data-moments-status>{% if moments_next_url != blank %}继续下滑{% else %}故事暂且讲到这里{% endif %}</p>
     </footer>
@@ -53,7 +53,7 @@
     "name": "动态流",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["moments"],
+    "sub_page_templates": ["moments", "page"],
     "settings": []
   }
 {% endschema %}
