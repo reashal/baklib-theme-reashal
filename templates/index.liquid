@@ -44,11 +44,53 @@
         </section>
         {% if p.settings.images != blank %}
           {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-          <section class="moment-images">
+          {% assign moment_image_count = 0 %}
+          {% for img_line in img_lines %}
+            {% assign img_parts = img_line | split: '|' %}
+            {% assign moment_image_path = img_parts[0] | strip %}
+            {% if moment_image_path != blank %}
+              {% assign moment_image_count = moment_image_count | plus: 1 %}
+            {% endif %}
+          {% endfor %}
+          {% capture moment_images_json %}[
+            {% assign moment_image_json_index = 0 %}
             {% for img_line in img_lines %}
               {% assign img_parts = img_line | split: '|' %}
               {% assign moment_image_path = img_parts[0] | strip %}
               {% if moment_image_path != blank %}
+                {% assign moment_image_json_index = moment_image_json_index | plus: 1 %}
+                {% assign moment_image_json_local_url = moment_image_path %}
+                {% assign moment_image_json_url = moment_image_path %}
+                {% unless moment_image_path contains '://' %}
+                  {% assign moment_image_json_local_url = moment_image_path | asset_url %}
+                  {% assign moment_image_json_url = moment_image_json_local_url %}
+                  {% if moments_cdn_prefix != blank %}
+                    {% assign moment_image_first_char = moment_image_path | slice: 0, 1 %}
+                    {% if moment_image_first_char == '/' %}
+                      {% assign moment_image_json_url = moments_cdn_prefix | append: moment_image_path %}
+                    {% else %}
+                      {% assign moment_image_json_url = moments_cdn_prefix | append: '/' | append: moment_image_path %}
+                    {% endif %}
+                  {% endif %}
+                {% endunless %}
+                {% if moment_image_json_index > 1 %},{% endif %}{"url":{{ moment_image_json_url | json }},"localUrl":{{ moment_image_json_local_url | json }},"alt":{{ img_parts[1] | strip | json }}}
+              {% endif %}
+            {% endfor %}
+          ]{% endcapture %}
+          <section class="moment-images" data-moment-id="{{ p.id }}" data-imgs="{{ moment_images_json | strip | escape }}">
+            {% if moment_image_count == 1 %}
+              <figure class="img-single">
+            {% elsif moment_image_count <= 4 %}
+              <figure class="img-grid img-grid-2x2">
+            {% else %}
+              <figure class="img-grid img-grid-3x3">
+            {% endif %}
+            {% assign moment_image_index = 0 %}
+            {% for img_line in img_lines %}
+              {% assign img_parts = img_line | split: '|' %}
+              {% assign moment_image_path = img_parts[0] | strip %}
+              {% if moment_image_path != blank %}
+                {% assign moment_image_index = moment_image_index | plus: 1 %}
                 {% assign moment_image_local_url = moment_image_path %}
                 {% assign moment_image_url = moment_image_path %}
                 {% assign moment_image_uses_cdn = false %}
@@ -65,9 +107,16 @@
                     {% assign moment_image_uses_cdn = true %}
                   {% endif %}
                 {% endunless %}
-            <img src="{{ moment_image_url }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy"{% if moment_image_uses_cdn %} onerror="this.onerror=null;this.src='{{ moment_image_local_url }}';"{% endif %} />
+                {% if moment_image_count > 9 and moment_image_index == 9 %}
+                  <div class="img-mask-overlay" style="background-image: url({{ moment_image_url | json | escape }}){% if moment_image_uses_cdn %}, url({{ moment_image_local_url | json | escape }}){% endif %};" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}">
+                    <span class="img-mask-count">+{{ moment_image_count | minus: 8 }}</span>
+                  </div>
+                {% elsif moment_image_count <= 9 or moment_image_index <= 8 %}
+                  <img src="{{ moment_image_url }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async"{% if moment_image_uses_cdn %} onerror="this.onerror=null;this.src='{{ moment_image_local_url }}';"{% endif %} />
+                {% endif %}
               {% endif %}
             {% endfor %}
+            </figure>
           </section>
         {% endif %}
         {% if p.settings.location != blank %}

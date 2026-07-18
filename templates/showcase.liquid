@@ -16,7 +16,10 @@
   <nav class="showcase-nav">
     {% assign sorted_sections = page.children | order_by: 'published_at' | limit: 100 %}
     {% for section in sorted_sections %}
+      {% assign section_icon = 'icon-pc' %}
+      {% if section.path contains '/links' %}{% assign section_icon = 'icon-plane' %}{% endif %}
       <a href="{{ section.path }}">
+        <i class="iconfont {{ section_icon }}"></i>
         <span>{{ section.link_text }}</span>
       </a>
     {% endfor %}

@@ -30,31 +30,58 @@
 
         document.querySelectorAll('.moment-images').forEach(function(momentSection, groupIndex) {
             var moment = momentSection.closest('.moment');
-            var momentId = moment && moment.id ? moment.id : 'moment-group-' + groupIndex;
+            var momentId = momentSection.getAttribute('data-moment-id') || (moment && moment.id ? moment.id : 'moment-group-' + groupIndex);
             var images = Array.from(momentSection.querySelectorAll('img'));
-            var imageList = images.map(function(img) {
-                return {
-                    url: img.currentSrc || img.src,
-                    alt: img.alt || ''
-                };
-            });
+            var imageList = [];
+            var imageData = momentSection.getAttribute('data-imgs');
+
+            if (imageData) {
+                try {
+                    imageList = JSON.parse(imageData).filter(function(item) {
+                        return item && item.url;
+                    });
+                } catch (error) {
+                    imageList = [];
+                }
+            }
+
+            if (imageList.length === 0) {
+                imageList = images.map(function(img) {
+                    return {
+                        url: img.currentSrc || img.src,
+                        localUrl: img.currentSrc || img.src,
+                        alt: img.alt || ''
+                    };
+                });
+            }
 
             if (imageList.length === 0) return;
             momentGroups[momentId] = imageList;
 
+            function openImage(imageIndex) {
+                if (!imageList[imageIndex] || mainEl.classList.contains('aside-show')) return;
+                currentMomentId = momentId;
+                currentIndex = imageIndex;
+                showImage();
+                viewBox.classList.remove('view-box-hide');
+                viewBox.classList.add('view-box-show');
+                previousBodyOverflow = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+            }
+
             images.forEach(function(img, imageIndex) {
                 img.addEventListener('click', function() {
-                    if (mainEl.classList.contains('aside-show')) return;
-                    imageList[imageIndex].url = img.currentSrc || img.src;
-                    currentMomentId = momentId;
-                    currentIndex = imageIndex;
-                    showImage();
-                    viewBox.classList.remove('view-box-hide');
-                    viewBox.classList.add('view-box-show');
-                    previousBodyOverflow = document.body.style.overflow;
-                    document.body.style.overflow = 'hidden';
+                    if (imageList[imageIndex]) imageList[imageIndex].url = img.currentSrc || img.src;
+                    openImage(imageIndex);
                 });
             });
+
+            var overlay = momentSection.querySelector('.img-mask-overlay');
+            if (overlay && imageList[8]) {
+                overlay.addEventListener('click', function() {
+                    openImage(8);
+                });
+            }
         });
     }
 
@@ -62,8 +89,17 @@
         var imageList = momentGroups[currentMomentId];
         if (!imageList || !imageList[currentIndex]) return;
 
-        viewImg.src = imageList[currentIndex].url;
-        viewImg.alt = imageList[currentIndex].alt;
+        var currentImage = imageList[currentIndex];
+        viewImg.onerror = null;
+        if (currentImage.localUrl && currentImage.localUrl !== currentImage.url) {
+            viewImg.onerror = function() {
+                viewImg.onerror = null;
+                currentImage.url = currentImage.localUrl;
+                viewImg.src = currentImage.localUrl;
+            };
+        }
+        viewImg.src = currentImage.url;
+        viewImg.alt = currentImage.alt || '';
 
         if (imageList.length > 1) {
             viewCounter.textContent = (currentIndex + 1) + ' / ' + imageList.length;

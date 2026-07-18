@@ -40,28 +40,32 @@
         {% assign link_label = parts[0] | strip %}
         {% assign link_href = parts[1] | strip %}
         {% assign link_icon = parts[2] | strip %}
-          {% if link_href contains '://' %}
-            {% assign is_external = true %}
-          {% else %}
-            {% assign is_external = false %}
+        {% assign is_external = false %}
+        {% if link_href contains '://' %}
+          {% assign is_external = true %}
+        {% endif %}
+        {% assign is_active = false %}
+        {% if link_href == '/' %}
+          {% if current_path == '/' or current_path == blank %}
+            {% assign is_active = true %}
           {% endif %}
-          {% if link_href == '/' %}
-            {% assign is_active = current_path == '/' or current_path == '' %}
-          {% elsif link_href contains '/showcase/' %}
-            {% assign is_active = current_path contains '/showcase/' %}
-          {% elsif is_external %}
-            {% assign is_active = false %}
-          {% else %}
-            {% assign is_active = current_path != '/' and current_path contains link_href %}
+        {% elsif link_href contains '/showcase/' %}
+          {% if current_path contains '/showcase/' %}
+            {% assign is_active = true %}
           {% endif %}
-          <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}"{% if is_external %} rel="noopener noreferrer"{% endif %}{% if is_active %} class="active"{% endif %}>
-          {% if link_icon != blank %}<i class="iconfont {{ link_icon }}"></i> {% endif %}{{ link_label }}
+        {% elsif is_external == false %}
+          {% if current_path != '/' and current_path contains link_href %}
+            {% assign is_active = true %}
+          {% endif %}
+        {% endif %}
+        <a href="{{ link_href }}" target="{% if is_external %}_blank{% else %}_self{% endif %}" class="{% if link_icon != blank %}iconfont {{ link_icon }} {% endif %}{% if is_active %}active{% endif %}"{% if is_external %} rel="noopener noreferrer"{% endif %}>
+          {{ link_label }}
         </a>
       {% endfor %}
     </section>
 
     <section class="aside-share-card">
-      <a class="share-link" id="aside-share-btn" aria-label="分享当前页面">分享当前页面</a>
+      <a class="share-link" id="aside-share-btn" aria-label="分享当前页面"><i class="iconfont icon-share"></i> 分享当前页面</a>
     </section>
 
     <section class="aside-tags-card">

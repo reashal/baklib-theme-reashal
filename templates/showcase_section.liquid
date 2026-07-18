@@ -29,7 +29,10 @@
 <article class="article-container showcase">
   <nav class="showcase-nav">
     {% for section in showcase_sections %}
+      {% assign section_icon = 'icon-pc' %}
+      {% if section.path contains '/links' %}{% assign section_icon = 'icon-plane' %}{% endif %}
       <a href="{{ section.path }}" class="{% if section.path == current_page.path %}active{% endif %}">
+        <i class="iconfont {{ section_icon }}"></i>
         <span>{{ section.link_text }}</span>
       </a>
     {% endfor %}
