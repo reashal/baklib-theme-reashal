@@ -24,20 +24,9 @@
   <link rel="icon" href="{{ error_favicon_url }}"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_favicon_local_url }}';"{% endif %}>
   {% meta_tags %}
   {% render 'theme_runtime_colors' %}
-  {% assign error_application_css_local_url = 'stylesheets/application.css' | asset_url %}
-  {% assign error_application_css_url = error_application_css_local_url %}
-  {% assign error_base_css_local_url = 'stylesheets/reashal-base.css' | asset_url %}
-  {% assign error_base_css_url = error_base_css_local_url %}
-  {% assign error_iconfont_css_local_url = 'stylesheets/iconfont.css' | asset_url %}
-  {% assign error_iconfont_css_url = error_iconfont_css_local_url %}
-  {% if error_cdn_prefix != blank %}
-    {% assign error_application_css_url = error_cdn_prefix | append: '/stylesheets/application.css' %}
-    {% assign error_base_css_url = error_cdn_prefix | append: '/stylesheets/reashal-base.css' %}
-    {% assign error_iconfont_css_url = error_cdn_prefix | append: '/stylesheets/iconfont.css' %}
-  {% endif %}
-  <link rel="stylesheet" href="{{ error_application_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_application_css_local_url }}';"{% endif %}>
-  <link rel="stylesheet" href="{{ error_base_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_base_css_local_url }}';"{% endif %}>
-  <link rel="stylesheet" href="{{ error_iconfont_css_url }}" data-turbo-track="reload"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.href='{{ error_iconfont_css_local_url }}';"{% endif %}>
+  {{ 'stylesheets/application.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/reashal-base.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
+  {{ 'stylesheets/iconfont.css' | asset_url | stylesheet_tag: data-turbo-track: 'reload' }}
   {% assign error_wallpaper_local_url = 'images/wallpaper.webp' | asset_url %}
   {% assign error_wallpaper_url = error_wallpaper_local_url %}
   {% if error_cdn_prefix != blank %}
@@ -93,11 +82,6 @@
       </div>
     </section>
   </main>
-  {% assign error_aside_js_local_url = 'javascripts/aside.js' | asset_url %}
-  {% assign error_aside_js_url = error_aside_js_local_url %}
-  {% if error_cdn_prefix != blank %}
-    {% assign error_aside_js_url = error_cdn_prefix | append: '/javascripts/aside.js' %}
-  {% endif %}
-  <script src="{{ error_aside_js_url }}"{% if error_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ error_aside_js_local_url }}';"{% endif %}></script>
+  {{ 'javascripts/aside.js' | asset_url | script_tag }}
 </body>
 </html>

@@ -53,13 +53,13 @@
     ]
   },
   {
-    "name": "CDN 资源设置",
+    "name": "图片 CDN 设置",
     "settings": [
       {
         "id": "cdn_url_prefix",
         "type": "text",
-        "label": "CDN 资源 URL 前缀",
-        "info": "填写域名或完整 URL，例如 www.reashal.com 或 https://www.reashal.com。无需填写末尾斜杠；留空时全部使用主题本地资源。",
+        "label": "图片 CDN URL 前缀",
+        "info": "仅用于头像、背景和内容图片。填写域名或完整 URL，例如 www.reashal.com 或 https://www.reashal.com；无需填写末尾斜杠。主题 JS/CSS 始终使用 Baklib 本地资源。",
         "default": ""
       }
     ]
