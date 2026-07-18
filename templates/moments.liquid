@@ -30,7 +30,11 @@
       {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
       {% if moment_content != blank %}<section class="moment-content">{{ moment_content }}</section>{% endif %}
       {% if page.settings.images != blank %}
-        {% assign img_lines = page.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
+        {% if page.settings.images.first != blank %}
+          {% assign img_lines = page.settings.images %}
+        {% else %}
+          {% assign img_lines = page.settings.images | split: "||__baklib_moment_image__||" %}
+        {% endif %}
         {% assign moment_image_count = 0 %}
         {% for img_line in img_lines %}
           {% assign image_parts = img_line | split: '|' %}
@@ -110,7 +114,7 @@
     { "id": "title", "type": "text", "label": "后台标题", "required": true, "info": "仅用于后台识别和生成页面地址，前台不显示。" },
     { "id": "date", "type": "date", "label": "发表日期", "required": true, "queryable": true },
     { "id": "content", "type": "richtext", "label": "动态内容", "required": true },
-    { "id": "images", "type": "textarea", "label": "动态图片", "rows": 10, "info": "每行一张，格式：图片 URL|图片说明。超过 9 张时，第 9 张显示剩余数量，查看器仍可浏览全部图片。" },
+    { "id": "images", "type": "image_picker", "label": "动态图片", "multiple": true, "info": "可选择多张图片；超过 9 张时，第 9 张显示剩余数量，查看器仍可浏览全部图片。" },
     { "id": "location", "type": "text", "label": "所在位置" },
     { "type": "header", "content": "展示用互动数据（可选）" },
     { "id": "stars", "type": "text", "label": "点赞用户", "info": "多个名称使用英文逗号分隔。" },

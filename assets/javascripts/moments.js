@@ -1,4 +1,12 @@
-(function() {
+(function initMomentsInfiniteLoader() {
+    if (window.__momentsTurboLoadHandler !== initMomentsInfiniteLoader) {
+        if (window.__momentsTurboLoadHandler) {
+            document.removeEventListener('turbo:load', window.__momentsTurboLoadHandler);
+        }
+        window.__momentsTurboLoadHandler = initMomentsInfiniteLoader;
+        document.addEventListener('turbo:load', window.__momentsTurboLoadHandler);
+    }
+
     if (window.__momentsInfiniteLoaderCleanup) {
         window.__momentsInfiniteLoaderCleanup();
     }
@@ -6,6 +14,9 @@
     var moments = document.querySelector('.moments');
     var pagination = document.getElementById('moments-pagination');
     if (!moments || !pagination) return;
+
+    var footer = pagination.closest('.moments-footer');
+    if (!footer) return;
 
     var status = moments.querySelector('[data-moments-status]');
     var pageSize = parseInt(pagination.dataset.pageSize, 10) || 3;
@@ -78,7 +89,7 @@
             var importedCard = document.importNode(card, true);
             var isLegacy = importedCard.dataset.momentLegacy === 'true';
             if (isLegacy) importedCard.hidden = true;
-            moments.insertBefore(importedCard, pagination);
+            moments.insertBefore(importedCard, footer);
             if (card.id) knownIds.add(card.id);
             result.appended += 1;
             result[isLegacy ? 'legacy' : 'native'] += 1;
