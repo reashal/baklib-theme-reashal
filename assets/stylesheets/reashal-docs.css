@@ -266,6 +266,14 @@
     box-shadow: 0 2px 8px -4px rgba(240, 139, 184, .2);
 }
 
+.dark .docs-h {
+    color: #fcfdfb;
+}
+
+.dark .docs-p {
+    color: #dcebf2;
+}
+
 
 /* 笔记标题底部：深灰色边框 */
 .dark .docs-t {

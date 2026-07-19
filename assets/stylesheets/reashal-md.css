@@ -8,10 +8,6 @@
     counter-reset: h1-counter h2-counter h3-counter h4-counter h5-counter h6-counter;
 }
 
-.dark .article-container {
-    box-shadow: rgba(142, 208, 220, .4) 0px 0px 8px;
-}
-
 /* 标题通用样式 */
 .doc h1,
 .doc h2,
