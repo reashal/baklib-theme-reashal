@@ -17,7 +17,7 @@
     {% if moments_cdn_prefix != blank %}
       {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
     {% endif %}
-    {% assign moment_pages = page.children | where: 'template_name', 'moment' | order_by: '-date' %}
+    {% assign moment_pages = page.children | where: 'template_name', 'page' | where: 'template_style', 'moment' | order_by: '-date' %}
     {% paginate_tag moment_pages, as: 'paginated_moments', per: 3 %}
     {% assign has = false %}
     {% for p in paginated_moments %}
@@ -44,7 +44,7 @@
     "name": "动态流",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["moment", "page"],
+    "sub_page_templates": ["page"],
     "settings": []
   }
 {% endschema %}

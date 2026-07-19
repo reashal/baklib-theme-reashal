@@ -39,7 +39,7 @@
   {% assign use_article_styles = false %}
   {% if page.template_name == 'index' %}
     {% assign use_moments_styles = true %}
-  {% elsif page.template_name == 'moment' %}
+  {% elsif page.template_name == 'page' and page.template_style == 'moment' %}
     {% assign use_moments_styles = true %}
   {% elsif page.template_name == 'search' %}
     {% assign use_docs_styles = true %}
