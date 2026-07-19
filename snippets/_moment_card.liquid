@@ -21,7 +21,7 @@
     {% if p.settings.images.first != blank %}
       {% assign img_lines = p.settings.images %}
     {% else %}
-      {% assign img_lines = p.settings.images | split: "||__baklib_moment_image__||" %}
+      {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
     {% endif %}
     {% assign moment_image_count = 0 %}
     {% for img_line in img_lines %}

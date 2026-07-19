@@ -30,7 +30,7 @@
     { "id": "title", "type": "text", "label": "后台标题", "required": true, "info": "仅用于后台识别和生成页面地址，前台不显示。" },
     { "id": "date", "type": "date", "label": "发表日期", "required": true, "queryable": true },
     { "id": "content", "type": "richtext", "label": "动态内容", "required": true },
-    { "id": "images", "type": "image_picker", "ratio": "1:1", "width": 120, "label": "动态图片", "multiple": true, "info": "可选择多张图片；超过 9 张时，第 9 张显示剩余数量，查看器仍可浏览全部图片。" },
+    { "id": "images", "type": "textarea", "rows": 8, "label": "动态图片", "info": "每行一张图片，格式为 URL|图片说明；图片说明可以省略。超过 9 张时，第 9 张显示剩余数量。" },
     { "id": "location", "type": "text", "label": "所在位置" },
     { "type": "header", "content": "展示用互动数据（可选）" },
     { "id": "stars", "type": "text", "label": "点赞用户", "info": "多个名称使用英文逗号分隔。" },
