@@ -17,119 +17,34 @@
     {% if moments_cdn_prefix != blank %}
       {% assign moment_avatar_url = moments_cdn_prefix | append: '/images/reashal.svg' %}
     {% endif %}
+    {% assign moment_pages = page.children | where: 'template_name', 'moment' | order_by: '-date' %}
+    {% paginate_tag moment_pages, as: 'paginated_moments', per: 3 %}
     {% assign has = false %}
-    {% assign moment_pages = site.pages | limit: 100 %}
-    {% for p in moment_pages reversed %}
-      {% assign moment_path_parts = p.path | split: '/' %}
-      {% if moment_path_parts.size == 2 and moment_path_parts[1] != blank and p.settings.date != blank and p.settings.description == blank %}
-        {% assign has = true %}
-      <article class="moment" id="{{ p.id }}">
-        <header class="moment-author">
-          <figure class="author-avatar">
-            <img src="{{ moment_avatar_url }}" alt="睿屿青衫" loading="lazy" decoding="async" class="view-none"{% if moments_cdn_prefix != blank %} onerror="this.onerror=null;this.src='{{ moment_avatar_local_url }}';"{% endif %} />
-          </figure>
-          <div class="author-info">
-            <span class="author-name">睿屿青衫</span>
-            <time class="author-date" datetime="{{ p.settings.date }}">{{ p.settings.date }}</time>
-          </div>
-        </header>
-        {% assign moment_content = p.settings.content | default: p.content %}
-        <section class="moment-content">
-          {% if moment_content != blank %}
-            {% assign moment_content = moment_content | replace: '<div bke-role="paragraph">', '<p>' | replace: '</div>', '</p>' %}
-            {{ moment_content }}
-          {% else %}
-            <a href="{{ p.path }}">{{ p.link_text }}</a>
-          {% endif %}
-        </section>
-        {% if p.settings.images != blank %}
-          {% assign img_lines = p.settings.images | newline_to_br | strip_newlines | split: "<br />" %}
-          {% assign moment_image_count = 0 %}
-          {% for img_line in img_lines %}
-            {% assign img_parts = img_line | split: '|' %}
-            {% assign moment_image_path = img_parts[0] | strip %}
-            {% if moment_image_path != blank %}
-              {% assign moment_image_count = moment_image_count | plus: 1 %}
-            {% endif %}
-          {% endfor %}
-          <section class="moment-images" data-moment-id="{{ p.id }}">
-            {% if moment_image_count == 1 %}
-              <figure class="img-single">
-            {% elsif moment_image_count <= 4 %}
-              <figure class="img-grid img-grid-2x2">
-            {% else %}
-              <figure class="img-grid img-grid-3x3">
-            {% endif %}
-            {% assign moment_image_index = 0 %}
-            {% for img_line in img_lines %}
-              {% assign img_parts = img_line | split: '|' %}
-              {% assign moment_image_path = img_parts[0] | strip %}
-              {% if moment_image_path != blank %}
-                {% assign moment_image_index = moment_image_index | plus: 1 %}
-                {% assign moment_image_local_url = moment_image_path %}
-                {% assign moment_image_url = moment_image_path %}
-                {% assign moment_image_uses_cdn = false %}
-                {% unless moment_image_path contains '://' %}
-                  {% assign moment_image_local_url = moment_image_path | asset_url %}
-                  {% assign moment_image_url = moment_image_local_url %}
-                  {% if moments_cdn_prefix != blank %}
-                    {% assign moment_image_first_char = moment_image_path | slice: 0, 1 %}
-                    {% if moment_image_first_char == '/' %}
-                      {% assign moment_image_url = moments_cdn_prefix | append: moment_image_path %}
-                    {% else %}
-                      {% assign moment_image_url = moments_cdn_prefix | append: '/' | append: moment_image_path %}
-                    {% endif %}
-                    {% assign moment_image_uses_cdn = true %}
-                  {% endif %}
-                {% endunless %}
-                <span hidden class="image-viewer-item" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}" data-image-alt="{{ img_parts[1] | strip | escape }}"></span>
-                {% if moment_image_count > 9 and moment_image_index == 9 %}
-                  <div class="img-mask-overlay" style="background-image: url(&quot;{{ moment_image_url | escape }}&quot;){% if moment_image_uses_cdn %}, url(&quot;{{ moment_image_local_url | escape }}&quot;){% endif %};" data-image-url="{{ moment_image_url | escape }}" data-local-url="{{ moment_image_local_url | escape }}">
-                    <span class="img-mask-count">+{{ moment_image_count | minus: 8 }}</span>
-                  </div>
-                {% elsif moment_image_count <= 9 or moment_image_index <= 8 %}
-                  <img src="{{ moment_image_url }}" alt="{{ img_parts[1] | strip | escape }}" loading="lazy" decoding="async"{% if moment_image_uses_cdn %} data-local-src="{{ moment_image_local_url | escape }}" onerror="this.onerror=null;this.src=this.dataset.localSrc;"{% endif %} />
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-            </figure>
-          </section>
-        {% endif %}
-        {% if p.settings.location != blank %}
-          <div class="moment-location"><p><code>{{ p.settings.location }}</code></p></div>
-        {% endif %}
-        {% if p.settings.stars != blank or p.settings.comments != blank %}
-          <section class="moment-interaction">
-            {% if p.settings.stars != blank %}
-              {% assign star_list = p.settings.stars | split: "," %}
-              <div class="interaction-stars">{% for star in star_list %}{% assign star_name = star | strip %}{% if star_name != blank %}<span class="star-item">{{ star_name }}</span>{% endif %}{% endfor %}</div>
-            {% endif %}
-            {% if p.settings.comments != blank %}
-              {% assign comment_list = p.settings.comments | newline_to_br | strip_newlines | split: "<br />" %}
-              <div class="interaction-comments">
-                {% for comment in comment_list %}{% assign c = comment | strip %}{% if c != blank %}<p class="comment-item"><span class="comment-author">睿屿青衫:</span><span class="comment-text">{{ c }}</span></p>{% endif %}{% endfor %}
-              </div>
-            {% endif %}
-          </section>
-        {% endif %}
-      </article>
-      {% endif %}
+    {% for p in paginated_moments %}
+      {% assign has = true %}
+      {% render 'moment_card', p: p, moments_cdn_prefix: moments_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
     {% endfor %}
     {% unless has %}
       <p style="text-align:center;color:#999;padding:2rem;">暂无动态</p>
     {% endunless %}
+    {% assign moments_next_url = blank %}
+    {% if paginate.next_page %}
+      {% assign moments_next_url = paginate.url_for[paginate.next_page] %}
+    {% endif %}
     <footer class="moments-footer">
-      <p class="end-tip">故事暂且讲到这里</p>
+      <p class="end-tip" data-moments-status>{% if moments_next_url != blank %}继续下滑{% else %}故事暂且讲到这里{% endif %}</p>
+      <div id="moments-pagination" aria-hidden="true" style="height:1px;overflow:hidden;" data-next-url="{{ moments_next_url | escape }}" data-page-size="3"></div>
     </footer>
+    {% endpaginate_tag %}
   </section>
 </article>
 
 {% schema %}
   {
-    "name": "首页",
+    "name": "动态流",
     "description": "动态流首页",
     "thumb_url": "",
-    "sub_page_templates": ["page"],
+    "sub_page_templates": ["moment", "page"],
     "settings": []
   }
 {% endschema %}

@@ -1,0 +1,40 @@
+{% assign moment_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+{% if moment_cdn_prefix != blank %}
+  {% unless moment_cdn_prefix contains '://' %}
+    {% assign moment_cdn_prefix = 'https://' | append: moment_cdn_prefix %}
+  {% endunless %}
+  {% assign moment_cdn_last_char = moment_cdn_prefix | slice: -1, 1 %}
+  {% if moment_cdn_last_char == '/' %}
+    {% assign moment_cdn_prefix_size = moment_cdn_prefix | size | minus: 1 %}
+    {% assign moment_cdn_prefix = moment_cdn_prefix | slice: 0, moment_cdn_prefix_size %}
+  {% endif %}
+{% endif %}
+{% assign moment_avatar_local_url = 'images/reashal.svg' | asset_url %}
+{% assign moment_avatar_url = moment_avatar_local_url %}
+{% if moment_cdn_prefix != blank %}
+  {% assign moment_avatar_url = moment_cdn_prefix | append: '/images/reashal.svg' %}
+{% endif %}
+
+<article class="article-container">
+  <section class="moments">
+    {% render 'moment_card', p: page, moments_cdn_prefix: moment_cdn_prefix, moment_avatar_url: moment_avatar_url, moment_avatar_local_url: moment_avatar_local_url %}
+    <footer class="moments-footer"><p class="end-tip">故事暂且讲到这里</p></footer>
+  </section>
+</article>
+
+{% schema %}
+{
+  "name": "动态",
+  "description": "单条动态内容，不作为随笔展示",
+  "settings": [
+    { "id": "title", "type": "text", "label": "后台标题", "required": true, "info": "仅用于后台识别和生成页面地址，前台不显示。" },
+    { "id": "date", "type": "date", "label": "发表日期", "required": true, "queryable": true },
+    { "id": "content", "type": "richtext", "label": "动态内容", "required": true },
+    { "id": "images", "type": "image_picker", "label": "动态图片", "multiple": true, "info": "可选择多张图片；超过 9 张时，第 9 张显示剩余数量，查看器仍可浏览全部图片。" },
+    { "id": "location", "type": "text", "label": "所在位置" },
+    { "type": "header", "content": "展示用互动数据（可选）" },
+    { "id": "stars", "type": "text", "label": "点赞用户", "info": "多个名称使用英文逗号分隔。" },
+    { "id": "comments", "type": "textarea", "label": "评论内容", "info": "每行一条评论。" }
+  ]
+}
+{% endschema %}
