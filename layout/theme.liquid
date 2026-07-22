@@ -43,7 +43,7 @@
     {% assign use_moments_styles = true %}
   {% elsif page.template_name == 'search' %}
     {% assign use_docs_styles = true %}
-  {% elsif page.template_name == 'show' or page.template_name == 'showcase' or page.template_name == 'showcase_section' %}
+  {% elsif page.template_name == 'show' %}
     {% assign use_showcase_styles = true %}
   {% elsif page.template_name == 'page' %}
     {% assign style_path_parts = page.path | split: '/' %}

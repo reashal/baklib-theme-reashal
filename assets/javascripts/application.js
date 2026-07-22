@@ -836,9 +836,11 @@ lucide/dist/esm/lucide.mjs:
       return tab && typeof tab === 'object' && typeof tab.id === 'string' && tab.id.trim() !== '';
     }) : [];
 
-    if (!nav || tabs.length === 0) {
-      if (nav) nav.hidden = true;
-      renderShowcaseContent(config);
+    if (!nav) return;
+
+    if (tabs.length === 0) {
+      nav.hidden = true;
+      renderShowcaseContent({ sections: [] });
       return;
     }
 
