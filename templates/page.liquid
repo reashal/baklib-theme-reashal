@@ -9,10 +9,6 @@
 {% if page.path == "/docs" %}
   {% assign is_section = true %}
 {% endif %}
-{% if page.path == "/showcase" %}
-  {% assign is_section = true %}
-{% endif %}
-
 {% if is_section %}
   {% comment %}--- Article listing mode (category, via site.pages) ---{% endcomment %}
   {% assign prefix = page.path | append: "/" %}

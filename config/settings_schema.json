@@ -4,7 +4,7 @@
     "theme_name": "reashal",
     "theme_label": "睿屿青衫",
     "theme_description": "基于 Baklib 平台的个人博客主题，以动态流为核心，兼顾文章展示与作品集展示。支持暗黑模式、Giscus 评论、CDN 资源加速、响应式布局。",
-    "theme_version": "1.1.0",
+    "theme_version": "1.2.0",
     "theme_syntax_version": "v2",
     "theme_scope": "cms",
     "theme_author": "reashal",
@@ -48,7 +48,7 @@
         "type": "textarea",
         "label": "导航链接",
         "info": "每行一个，格式：标题|路径|icon类名（如 icon-Home）。内链自动高亮激活态，外链(http开头)新标签打开。",
-        "default": "动态|/|icon-Home\n随笔|/docs|icon-pencil\n展示|/showcase/stuff|icon-pc\n仓库|https://github.com/reashal|icon-github\n游弋|https://uuuu.ee|icon-planet"
+        "default": "动态|/|icon-Home\n随笔|/docs|icon-pencil\n展示|/show|icon-pc\n仓库|https://github.com/reashal|icon-github\n游弋|https://uuuu.ee|icon-planet"
       }
     ]
   },

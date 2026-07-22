@@ -1,0 +1,36 @@
+{% schema %}
+{
+  "label": "展示",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "cards_json",
+      "label": "展示数据（JSON）",
+      "default": "{\"defaultTab\":\"stuff\",\"tabs\":[]}"
+    }
+  ]
+}
+{% endschema %}
+
+{% assign show_cdn_prefix = site.settings.cdn_url_prefix | strip %}
+{% if show_cdn_prefix != blank %}
+  {% unless show_cdn_prefix contains '://' %}
+    {% assign show_cdn_prefix = 'https://' | append: show_cdn_prefix %}
+  {% endunless %}
+  {% assign show_cdn_last_char = show_cdn_prefix | slice: -1, 1 %}
+  {% if show_cdn_last_char == '/' %}
+    {% assign show_cdn_prefix_size = show_cdn_prefix | size | minus: 1 %}
+    {% assign show_cdn_prefix = show_cdn_prefix | slice: 0, show_cdn_prefix_size %}
+  {% endif %}
+{% endif %}
+
+<article class="article-container showcase">
+  <nav id="showcase-nav" class="showcase-nav" role="tablist" aria-label="展示栏目"></nav>
+
+  <div id="showcase-root" role="tabpanel" tabindex="0" aria-live="polite">
+    <h2 class="showcase-h">加载中...</h2>
+  </div>
+
+  <textarea id="showcase-data" hidden data-cdn-prefix="{{ show_cdn_prefix | escape }}">{{ page.settings.cards_json }}</textarea>
+  <noscript><p class="showcase-p">请启用 JavaScript 后查看展示内容。</p></noscript>
+</article>

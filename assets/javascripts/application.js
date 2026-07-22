@@ -678,21 +678,20 @@ lucide/dist/esm/lucide.mjs:
     if (!dataEl) return;
     var root = document.getElementById('showcase-root');
     if (!root) return;
+    var nav = document.getElementById('showcase-nav');
 
     var config;
     try {
       config = JSON.parse(dataEl.value);
     } catch (e) {
-      var loadingHeading = root.querySelector('.showcase-h');
-      if (loadingHeading) loadingHeading.textContent = '展示数据格式有误';
+      root.innerHTML = '<h2 class="showcase-h">展示数据格式有误</h2>';
       return;
     }
     if (!config || typeof config !== 'object' || Array.isArray(config)) {
-      var invalidHeading = root.querySelector('.showcase-h');
-      if (invalidHeading) invalidHeading.textContent = '展示数据格式有误';
+      root.innerHTML = '<h2 class="showcase-h">展示数据格式有误</h2>';
       return;
     }
-    root.innerHTML = '';
+
     var cdnPrefix = (dataEl.getAttribute('data-cdn-prefix') || '').replace(/\/$/, '');
 
     function createShowcaseImage(imagePath, title, fallbackParent) {
@@ -723,105 +722,189 @@ lucide/dist/esm/lucide.mjs:
       return img;
     }
 
-    if (Array.isArray(config.intro)) {
-      var h = document.createElement('h2');
-      h.className = 'showcase-h showcase-intro';
-      h.textContent = '写在前面';
-      root.appendChild(h);
-      config.intro.forEach(function(p) {
-        var pe = document.createElement('p');
-        pe.className = 'showcase-p';
-        pe.textContent = p;
-        root.appendChild(pe);
+    function renderShowcaseContent(contentConfig) {
+      root.innerHTML = '';
+
+      if (Array.isArray(contentConfig.intro) && contentConfig.intro.length > 0) {
+        var h = document.createElement('h2');
+        h.className = 'showcase-h showcase-intro';
+        h.textContent = '写在前面';
+        root.appendChild(h);
+        contentConfig.intro.forEach(function(p) {
+          var pe = document.createElement('p');
+          pe.className = 'showcase-p';
+          pe.textContent = p;
+          root.appendChild(pe);
+        });
+      }
+
+      var sections = Array.isArray(contentConfig.sections) ? contentConfig.sections : [];
+      sections.forEach(function(section) {
+        if (!section || typeof section !== 'object') return;
+        var heading = document.createElement('h2');
+        heading.className = 'showcase-h';
+        heading.textContent = section.title || '';
+        root.appendChild(heading);
+
+        var body = document.createElement('div');
+        body.className = 'showcase-body';
+
+        var cards = Array.isArray(section.cards) ? section.cards : [];
+        cards.forEach(function(card) {
+          if (!card || typeof card !== 'object') return;
+          var allowedModes = ['text-only', 'icon-simple', 'app-card', 'product-card'];
+          var mode = allowedModes.indexOf(card.imageMode) >= 0 ? card.imageMode : 'text-only';
+          var hasLink = typeof card.link === 'string' && card.link.trim() !== '';
+          var w = document.createElement(hasLink ? 'a' : 'div');
+          if (hasLink) { w.href = card.link; w.target = '_blank'; w.rel = 'noopener noreferrer'; }
+          w.className = 'showcase-' + mode;
+
+          if (mode === 'icon-simple' || mode === 'app-card') {
+            var avatar = document.createElement('div');
+            avatar.className = 'showcase-avatar' + (card.image ? '' : ' no-image');
+            avatar.setAttribute('data-initial', (card.title || '?')[0]);
+            if (card.image) {
+              var avatarImage = createShowcaseImage(card.image, card.title, avatar);
+              if (avatarImage) avatar.appendChild(avatarImage);
+            }
+            w.appendChild(avatar);
+          }
+
+          if (mode === 'product-card') {
+            var li = document.createElement('div');
+            li.className = 'showcase-large-image' + (card.image ? '' : ' no-image');
+            li.setAttribute('data-title', (card.title || '?')[0]);
+            if (card.image) {
+              var productImage = createShowcaseImage(card.image, card.title, li);
+              if (productImage) li.appendChild(productImage);
+            }
+            w.appendChild(li);
+          }
+
+          var info = document.createElement('div');
+          info.className = 'showcase-info';
+
+          var titleEl = document.createElement('h3');
+          titleEl.textContent = card.title || '';
+          info.appendChild(titleEl);
+
+          if (Array.isArray(card.specs)) {
+            var specWrap = document.createElement('div');
+            specWrap.className = 'showcase-specs';
+            card.specs.forEach(function(s) {
+              var span = document.createElement('span');
+              span.className = 'showcase-spec';
+              span.textContent = s;
+              specWrap.appendChild(span);
+            });
+            info.appendChild(specWrap);
+          }
+
+          if (card.description) {
+            var desc = document.createElement('p');
+            desc.textContent = card.description;
+            info.appendChild(desc);
+          }
+
+          w.appendChild(info);
+          body.appendChild(w);
+        });
+
+        root.appendChild(body);
       });
+
+      if (sections.length === 0) {
+        var empty = document.createElement('p');
+        empty.className = 'showcase-p showcase-empty';
+        empty.textContent = '暂无展示内容';
+        root.appendChild(empty);
+      }
+
+      if (contentConfig.showFooter) {
+        var footer = document.createElement('section');
+        footer.className = 'article-copy';
+        ['名称：睿屿青衫', '网址：https://www.reashal.com', '描述：希望我们能在前行的路上久别重逢'].forEach(function(t) {
+          var d = document.createElement('div');
+          d.textContent = t;
+          footer.appendChild(d);
+        });
+        root.appendChild(footer);
+      }
     }
 
-    if (!Array.isArray(config.sections)) return;
+    var tabs = Array.isArray(config.tabs) ? config.tabs.filter(function(tab) {
+      return tab && typeof tab === 'object' && typeof tab.id === 'string' && tab.id.trim() !== '';
+    }) : [];
 
-    config.sections.forEach(function(section) {
-      if (!section || typeof section !== 'object') return;
-      var heading = document.createElement('h2');
-      heading.className = 'showcase-h';
-      heading.textContent = section.title || '';
-      root.appendChild(heading);
+    if (!nav || tabs.length === 0) {
+      if (nav) nav.hidden = true;
+      renderShowcaseContent(config);
+      return;
+    }
 
-      var body = document.createElement('div');
-      body.className = 'showcase-body';
+    nav.hidden = false;
+    nav.innerHTML = '';
+    var storageKey = 'showcase-active-tab:' + window.location.pathname;
+    var activeId = '';
+    try { activeId = window.sessionStorage.getItem(storageKey) || ''; } catch (e) {}
+    if (!tabs.some(function(tab) { return tab.id === activeId; })) activeId = config.defaultTab || '';
+    if (!tabs.some(function(tab) { return tab.id === activeId; })) activeId = tabs[0].id;
 
-      var cards = Array.isArray(section.cards) ? section.cards : [];
-      cards.forEach(function(card) {
-        if (!card || typeof card !== 'object') return;
-        var allowedModes = ['text-only', 'icon-simple', 'app-card', 'product-card'];
-        var mode = allowedModes.indexOf(card.imageMode) >= 0 ? card.imageMode : 'text-only';
-        var hasLink = typeof card.link === 'string' && card.link.trim() !== '';
-        var w = document.createElement(hasLink ? 'a' : 'div');
-        if (hasLink) { w.href = card.link; w.target = '_blank'; w.rel = 'noopener noreferrer'; }
-        w.className = 'showcase-' + mode;
+    var buttons = [];
 
-        if (mode === 'icon-simple' || mode === 'app-card') {
-          var avatar = document.createElement('div');
-          avatar.className = 'showcase-avatar' + (card.image ? '' : ' no-image');
-          avatar.setAttribute('data-initial', (card.title || '?')[0]);
-          if (card.image) {
-            var avatarImage = createShowcaseImage(card.image, card.title, avatar);
-            if (avatarImage) avatar.appendChild(avatarImage);
-          }
-          w.appendChild(avatar);
-        }
+    function selectTab(tabId, remember) {
+      var selectedIndex = tabs.findIndex(function(tab) { return tab.id === tabId; });
+      if (selectedIndex < 0) selectedIndex = 0;
+      activeId = tabs[selectedIndex].id;
 
-        if (mode === 'product-card') {
-          var li = document.createElement('div');
-          li.className = 'showcase-large-image' + (card.image ? '' : ' no-image');
-          li.setAttribute('data-title', (card.title || '?')[0]);
-          if (card.image) {
-            var productImage = createShowcaseImage(card.image, card.title, li);
-            if (productImage) li.appendChild(productImage);
-          }
-          w.appendChild(li);
-        }
-
-        var info = document.createElement('div');
-        info.className = 'showcase-info';
-
-        var titleEl = document.createElement('h3');
-        titleEl.textContent = card.title || '';
-        info.appendChild(titleEl);
-
-        if (Array.isArray(card.specs)) {
-          var specWrap = document.createElement('div');
-          specWrap.className = 'showcase-specs';
-          card.specs.forEach(function(s) {
-            var span = document.createElement('span');
-            span.className = 'showcase-spec';
-            span.textContent = s;
-            specWrap.appendChild(span);
-          });
-          info.appendChild(specWrap);
-        }
-
-        if (card.description) {
-          var desc = document.createElement('p');
-          desc.textContent = card.description;
-          info.appendChild(desc);
-        }
-
-        w.appendChild(info);
-        body.appendChild(w);
+      buttons.forEach(function(button, index) {
+        var selected = index === selectedIndex;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        button.tabIndex = selected ? 0 : -1;
       });
 
-      root.appendChild(body);
+      root.setAttribute('aria-labelledby', buttons[selectedIndex].id);
+      renderShowcaseContent(tabs[selectedIndex]);
+      if (remember) {
+        try { window.sessionStorage.setItem(storageKey, activeId); } catch (e) {}
+      }
+    }
+
+    tabs.forEach(function(tab, index) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'showcase-tab-' + index;
+      button.setAttribute('role', 'tab');
+      button.setAttribute('aria-controls', 'showcase-root');
+
+      if (tab.icon) {
+        var icon = document.createElement('i');
+        icon.className = 'iconfont ' + tab.icon;
+        icon.setAttribute('aria-hidden', 'true');
+        button.appendChild(icon);
+      }
+
+      var label = document.createElement('span');
+      label.textContent = tab.title || tab.id;
+      button.appendChild(label);
+      button.addEventListener('click', function() { selectTab(tab.id, true); });
+      button.addEventListener('keydown', function(event) {
+        var nextIndex = index;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        buttons[nextIndex].focus();
+        selectTab(tabs[nextIndex].id, true);
+      });
+      buttons.push(button);
+      nav.appendChild(button);
     });
 
-    if (config.showFooter) {
-      var footer = document.createElement('section');
-      footer.className = 'article-copy';
-      ['名称：睿屿青衫', '网址：https://www.reashal.com', '描述：希望我们能在前行的路上久别重逢'].forEach(function(t) {
-        var d = document.createElement('div');
-        d.textContent = t;
-        footer.appendChild(d);
-      });
-      root.appendChild(footer);
-    }
+    selectTab(activeId, false);
   }
 
   renderShowcase();

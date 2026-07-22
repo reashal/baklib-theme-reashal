@@ -29,7 +29,7 @@
     <section class="aside-links-card">
       {% capture default_nav %}动态|/|icon-Home
 随笔|/docs|icon-pencil
-展示|/showcase/stuff|icon-pc
+展示|/show|icon-pc
 仓库|https://github.com/reashal|icon-github
 游弋|https://uuuu.ee|icon-planet{% endcapture %}
       {% assign raw_links = site.settings.external_links | strip %}
@@ -47,10 +47,6 @@
         {% assign is_active = false %}
         {% if link_href == '/' %}
           {% if current_path == '/' or current_path == blank %}
-            {% assign is_active = true %}
-          {% endif %}
-        {% elsif link_href contains '/showcase/' %}
-          {% if current_path contains '/showcase/' %}
             {% assign is_active = true %}
           {% endif %}
         {% elsif is_external == false %}

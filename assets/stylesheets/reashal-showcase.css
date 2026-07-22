@@ -38,7 +38,8 @@
     border-bottom: 1px solid #e0e0e0;
 }
 
-.showcase-nav a {
+.showcase-nav a,
+.showcase-nav button {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -49,22 +50,41 @@
     font-weight: 400;
     transition: all 0.2s ease;
     position: relative;
+    background: none;
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
+    font-family: inherit;
+    cursor: pointer;
 }
 
-.showcase-nav a:hover {
+.showcase-nav a:hover,
+.showcase-nav button:hover {
     color: #666;
 }
 
-.showcase-nav a.active {
+.showcase-nav a.active,
+.showcase-nav button.active {
     color: #333;
     border-bottom-color: #ec6fa3;
 }
 
-.showcase-nav a i {
+.showcase-nav a i,
+.showcase-nav button i {
     font-size: 0.9rem;
     opacity: 0.7;
+}
+
+.showcase-nav button:focus-visible {
+    outline: 2px solid #ec6fa3;
+    outline-offset: -2px;
+    border-radius: 4px 4px 0 0;
+}
+
+#showcase-root:focus {
+    outline: none;
 }
 
 /* ============================================ */
@@ -424,7 +444,8 @@
         gap: 8px;
     }
     
-    .showcase-nav a {
+    .showcase-nav a,
+    .showcase-nav button {
         padding: 6px 12px;
         font-size: 0.85rem;
     }
@@ -497,15 +518,18 @@
     border-bottom-color: #444;
 }
 
-.dark .showcase-nav a {
+.dark .showcase-nav a,
+.dark .showcase-nav button {
     color: #777;
 }
 
-.dark .showcase-nav a:hover {
+.dark .showcase-nav a:hover,
+.dark .showcase-nav button:hover {
     color: #aaa;
 }
 
-.dark .showcase-nav a.active {
+.dark .showcase-nav a.active,
+.dark .showcase-nav button.active {
     color: #e0e0e0;
     border-bottom-color: #ec6fa3;
 }
